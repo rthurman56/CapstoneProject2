@@ -33,7 +33,9 @@ interventions$x=as.character(interventions$x)
 studies$nct_id=as.character(studies$nct_id)
 studies$overall_status=as.character(studies$overall_status)
 studies$brief_title=as.character(studies$brief_title)
-
+studies$start_dt=as.Date(studies$start_dt)
+studies$startMonth=as.numeric(as.POSIXlt(studies$start_dt)$mon+1)
+studies$startYear=as.numeric(as.POSIXlt(studies$start_dt)$year+1900)
 
 
 
