@@ -113,7 +113,7 @@ dtm <- tokens_count %>%
   cast_dtm(nct_id, word, n)
 
 #lda
-lda <- LDA(dtm, k = 2, control = list(seed = 1234))
+lda <- LDA(dtm, k = 4, control = list(seed = 1234))
 
 topics <- tidy(lda, matrix = "beta")
 #get a small data frame of the top 10 descriptions for each topic

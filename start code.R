@@ -54,7 +54,7 @@ study_summary_designs_interventions <- merge(study_summary_designs, intervention
 
 # Removing X.x and X.y as these were just row identifiers for the respective datasets prior to the merge
 # renaming the dataset to current_data 
-current_data <- subset(study_summary_designs_interventions, select = -c(10,14))
+current_data <- subset(study_summary_designs_interventions, select = -c(X.x, X.y))
 
 # renaming the column named 'x' to reflect its decription (represents intervention type)
 colnames(current_data)[colnames(current_data)=="x"] <- "intervention_type"
@@ -136,14 +136,14 @@ ggplot(data = current_data, aes(x = overall_status, color = phase, fill = phase)
 
 ### Exploratory Plots with Allocation
 # Allocation counts by facet wrap on status
-ggplot(data = current_data, aes(x = allocation, color = allocation, fill = allocation)) +
+ggplot(data = current_data, aes(x = allocation, fill = allocation)) +
   geom_bar() + facet_wrap(~overall_status, scales ='free') + 
   labs(x = 'Allocation', y = 'Count') + ggtitle("Completed/Terminated Trials by Allocation")
 # stacked bar chart of each allocation and their statuses (stacks)
-ggplot(data = current_data, aes(x = allocation, color = overall_status, fill = overall_status)) +
+ggplot(data = current_data, aes(x = allocation, fill = overall_status)) +
   geom_bar() + labs(x = 'Allocation', y = 'Count') + ggtitle("Allocations with Overall Status")
 # stacked bar chart of status with allocations as stacks
-ggplot(data = current_data, aes(x = overall_status, color = allocation, fill = allocation)) +
+ggplot(data = current_data, aes(x = overall_status, fill = allocation)) +
   geom_bar() + labs(x = 'Allocation', y = 'Count') + ggtitle("Status by Allocation")
 
 # end of claire playing around with categoricals #
@@ -151,7 +151,7 @@ ggplot(data = current_data, aes(x = overall_status, color = allocation, fill = a
 
 # Facet wrap by phase: shows the changing proportion of statuses by enrollment for each
 ggplot(data = current_data, aes(x = enrollment_level, color = overall_status, fill = overall_status)) + geom_bar(position = 'fill') + 
-  facet_wrap(~phase, scales = 'free') + labs(x = 'Enrollment')
+  facet_wrap(~phase) + labs(x = 'Enrollment')
 # showed to Follett
 
 # mosaic plot of Intervention Model and Status
@@ -160,9 +160,10 @@ ggplot(data = current_data) + geom_mosaic(aes(x = product(overall_status, interv
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 # Things to clean:
-### Allocation - combine random sample and randomized
-### Merge current_data with designs to get back primary_purpose
-### Name the blank intervention_model rows "Not Listed"
+### Allocation - Random sample needs to join Randomized
+### Rename the blank intervention_model, intervention_type, allocation, and primary_purpose rows as "Not Listed" or "Unknown"
 ### Combine Phases as follows:
   ### Phase 1/Phase 2 -> Phase 1
   ### Phase 2/Phase 3 -> Phase 2
+### Reorder phases using current_data$phasef <- factor(current_data$phase, levels = c('Early Phase 1', 'Phase 1', 'Phase 2', 'Phase 3', 'Phase 4', 'N/A'))
+
