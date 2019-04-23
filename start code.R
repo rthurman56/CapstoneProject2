@@ -54,7 +54,7 @@ study_summary_designs_interventions <- merge(study_summary_designs, intervention
 
 # Removing X.x and X.y as these were just row identifiers for the respective datasets prior to the merge
 # renaming the dataset to current_data 
-current_data <- subset(study_summary_designs_interventions, select = -c(10,14))
+current_data <- subset(study_summary_designs_interventions, select = -c(X.x, X.y))
 
 # renaming the column named 'x' to reflect its decription (represents intervention type)
 colnames(current_data)[colnames(current_data)=="x"] <- "intervention_type"
@@ -80,3 +80,90 @@ hist(temp$enrollment)
 
 # create levels of enrollment
 current_data$enrollment_level <- cut(current_data$enrollment, c(-1,21,43,80,199,999,67128927))
+
+#########################################################################################
+# Claire playing around with categoricals -- will be deleting most
+
+### Exploratory Plots with Intervention Model
+# Intervention Model counts by facet wrap on status
+ggplot(data = current_data, aes(x = intervention_model, color = intervention_model, fill = intervention_model)) +
+  geom_bar() + facet_wrap(~overall_status, scales ='free') + 
+  labs(x = 'Intervention Model', y = 'Count') + ggtitle("Completed/Terminated Trials by Intervention Model")
+
+# stacked bar chart of each intervention model and their statuses (stacks)
+ggplot(data = current_data, aes(x = intervention_model, color = overall_status, fill = overall_status)) +
+  geom_bar() + labs(x = 'Intervention Model', y = 'Count') + ggtitle("Intervention Models with Overall Status")
+
+# stacked bar chart of status with intervention models as stacks
+ggplot(data = current_data, aes(x = overall_status, color = intervention_model, fill = intervention_model)) +
+  geom_bar() + labs(x = 'Status', y = 'Count') + ggtitle("Status by Intervention Model")
+
+### Exploratory Plots with Intervention Type
+# Intervention Type counts by facet wrap on status
+ggplot(data = current_data, aes(x = intervention_type, color = intervention_type, fill = intervention_type)) +
+  geom_bar() + facet_wrap(~overall_status, scales ='free') + 
+  labs(x = 'Intervention Type', y = 'Count') + ggtitle("Completed/Terminated Trials by Intervention Type")
+
+# stacked bar chart of each intervention type and their statuses (stacks)
+ggplot(data = current_data, aes(x = intervention_type, color = overall_status, fill = overall_status)) +
+  geom_bar() + labs(x = 'Intervention Type', y = 'Count') + ggtitle("Intervention Types with Overall Status")
+
+# stacked bar chart of status with intervention types as stacks
+ggplot(data = current_data, aes(x = overall_status, color = intervention_type, fill = intervention_type)) +
+  geom_bar() + labs(x = 'Status', y = 'Count') + ggtitle("Status by Intervention Type")
+
+# get the completion rate by each of these #
+
+### Exploratory Plots with Enrollment Level
+# stacked bar chart of each enrollment level and their statuses (stacks)
+ggplot(data = current_data, aes(x = enrollment_level, color = overall_status, fill = overall_status)) +
+  geom_bar(position = 'fill') + labs(x = 'Enrollment', y = 'Count') + ggtitle("Enrollment Levels with Overall Status")
+
+### Exploratory Plots with Phase
+# consider grouping these back together and taking N/A out
+# Phase counts by facet wrap on status
+ggplot(data = current_data, aes(x = phase, color = phase, fill = phase)) +
+  geom_bar() + facet_wrap(~overall_status, scales ='free') + 
+  labs(x = 'Phase', y = 'Count') + ggtitle("Completed/Terminated Trials by Phase")
+
+# stacked bar chart of each phase and their statuses (stacks)
+ggplot(data = current_data, aes(x = phase, color = overall_status, fill = overall_status)) +
+  geom_bar() + labs(x = 'Phase', y = 'Count') + ggtitle("Phases with Overall Status")
+
+# stacked bar chart of status with phases as stacks
+ggplot(data = current_data, aes(x = overall_status, color = phase, fill = phase)) +
+  geom_bar() + labs(x = 'Phase', y = 'Count') + ggtitle("Status by Phase")
+
+### Exploratory Plots with Allocation
+# Allocation counts by facet wrap on status
+ggplot(data = current_data, aes(x = allocation, fill = allocation)) +
+  geom_bar() + facet_wrap(~overall_status, scales ='free') + 
+  labs(x = 'Allocation', y = 'Count') + ggtitle("Completed/Terminated Trials by Allocation")
+# stacked bar chart of each allocation and their statuses (stacks)
+ggplot(data = current_data, aes(x = allocation, fill = overall_status)) +
+  geom_bar() + labs(x = 'Allocation', y = 'Count') + ggtitle("Allocations with Overall Status")
+# stacked bar chart of status with allocations as stacks
+ggplot(data = current_data, aes(x = overall_status, fill = allocation)) +
+  geom_bar() + labs(x = 'Allocation', y = 'Count') + ggtitle("Status by Allocation")
+
+# end of claire playing around with categoricals #
+ #########################################################################################
+
+# Facet wrap by phase: shows the changing proportion of statuses by enrollment for each
+ggplot(data = current_data, aes(x = enrollment_level, color = overall_status, fill = overall_status)) + geom_bar(position = 'fill') + 
+  facet_wrap(~phase) + labs(x = 'Enrollment')
+# showed to Follett
+
+# mosaic plot of Intervention Model and Status
+ggplot(data = current_data) + geom_mosaic(aes(x = product(overall_status, intervention_model), fill = overall_status)) + 
+  labs(x = 'Intervention Model', y = 'Overall Status', fill = 'Overall Status') + ggtitle("Intervention Models and Overall Status") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+# Things to clean:
+### Allocation - Random sample needs to join Randomized
+### Rename the blank intervention_model, intervention_type, allocation, and primary_purpose rows as "Not Listed" or "Unknown"
+### Combine Phases as follows:
+  ### Phase 1/Phase 2 -> Phase 1
+  ### Phase 2/Phase 3 -> Phase 2
+### Reorder phases using current_data$phasef <- factor(current_data$phase, levels = c('Early Phase 1', 'Phase 1', 'Phase 2', 'Phase 3', 'Phase 4', 'N/A'))
+
