@@ -188,3 +188,14 @@ current_data$phase[current_data$phase=='Early Phase 1']='Phase 1'
 current_data$phase[current_data$phase=='Phase 1/Phase 2']='Phase 1'
 current_data$phase[current_data$phase=='Phase 2/Phase 3']='Phase 2'
 
+## clean allocation
+current_data$allocation[current_data$allocation == 'Random Sample'] <- 'Randomized' #combining random sample with randomized
+
+## rename blank values in allocation to "Not Listed"
+current_data$allocation[current_data$allocation == ''] <- 'Not Listed' 
+## rename blank values in intervention_model to "Not Listed"
+current_data$intervention_model[current_data$intervention_model == ''] <- 'Not Listed' 
+## rename NA values in intervention_type to 'Not Listed'
+current_data$intervention_type[is.na(current_data$intervention_type)] <- 'Not Listed' 
+
+
