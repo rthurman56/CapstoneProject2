@@ -20,6 +20,10 @@ str(interventions)
 str(studies)
 
 
+##############################
+## DATA CLEANING AND MERGES ##
+##############################
+
 brief_summaries$nct_id=as.character(brief_summaries$nct_id)
 brief_summaries$description=as.character(brief_summaries$description)
 
@@ -41,12 +45,6 @@ studies$start_dt=as.Date(studies$start_dt)
 studies$startMonth=as.numeric(as.POSIXlt(studies$start_dt)$mon+1)
 studies$startYear=as.numeric(as.POSIXlt(studies$start_dt)$year+1900)
 
-# summary of intervention type
-summary(interventions$x)
-
-# summary of trial status
-summary(studies$overall_status)
-
 #merging studies and brief summaries
 study_summary <- merge(studies, brief_summaries, by = 'nct_id', all.x = T, all.y = T)
 #merging study_summary with designs
@@ -61,17 +59,11 @@ current_data <- subset(study_summary_designs_interventions, select = -c(X.x, X.y
 # renaming the column named 'x' to reflect its decription (represents intervention type)
 colnames(current_data)[colnames(current_data)=="x"] <- "intervention_type"
 
-# histogram of enrollment -- extremely right skewed
-hist(study_summary_designs_interventions$enrollment, breaks = )
-
 # creating column indicating whether or not the trial was terminated
 # terminated trial = 1
 # completed trial = 0
 current_data$status_bin <- 1 #setting it always equal to 1
 current_data$status_bin[current_data$overall_status == 'Completed'] <- 0 #when trial was completed, set to 0
-
-temp <- current_data[which(current_data$enrollment >=1000 & current_data$enrollment < Inf ),]
-hist(temp$enrollment)
 
 # 1st: 0-21,     26,899
 # 2nd: 22-43,    27,459
@@ -83,6 +75,36 @@ hist(temp$enrollment)
 # create levels of enrollment
 current_data$enrollment_level <- cut(current_data$enrollment, c(-1,21,43,80,199,999,67128927))
 
+
+#fix phases
+current_data$phase[current_data$phase=='Early Phase 1']='Phase 1'
+current_data$phase[current_data$phase=='Phase 1/Phase 2']='Phase 1'
+current_data$phase[current_data$phase=='Phase 2/Phase 3']='Phase 2'
+
+current_data$phasef <- factor(current_data$phase, levels = c('Phase 1', 'Phase 2', 'Phase 3', 'Phase 4', 'N/A'))
+
+
+## clean allocation
+current_data$allocation[current_data$allocation == 'Random Sample'] <- 'Randomized' #combining random sample with randomized
+
+## rename blank values in allocation to "Not Listed"
+current_data$allocation[current_data$allocation == ''] <- 'Not Listed' 
+## rename blank values in intervention_model to "Not Listed"
+current_data$intervention_model[current_data$intervention_model == ''] <- 'Not Listed' 
+## rename NA values in intervention_type to 'Not Listed'
+current_data$intervention_type[is.na(current_data$intervention_type)] <- 'Not Listed' 
+## rename blank values in primary_purpose to 'Not Listed'
+current_data$primary_purpose[current_data$primary_purpose == ''] <- 'Not Listed' 
+## rename blank values in has_dmc to 'Not Listed'
+# convert to character
+current_data$has_dmc <- as.character(current_data$has_dmc)
+current_data$has_dmc[is.na(current_data$has_dmc)] <- 'Not Listed' 
+
+
+#######################
+## EXPLORATORY PLOTS ##
+#######################
+
 ggplot(data = current_data) +
   geom_bar(aes(x = intervention_model, fill = enrollment_level))
 
@@ -92,7 +114,7 @@ ggplot(data = current_data) +
 ggplot(data = current_data) +
   geom_bar(aes(x = allocation, fill = enrollment_level), position = "fill")
 
-#########################################################################################
+
 # Claire playing around with categoricals -- will be deleting most
 
 ### Exploratory Plots with Intervention Model
@@ -158,56 +180,22 @@ ggplot(data = current_data, aes(x = overall_status, fill = allocation)) +
   geom_bar() + labs(x = 'Allocation', y = 'Count') + ggtitle("Status by Allocation")
 
 # end of claire playing around with categoricals #
- #########################################################################################
 
 # mosaic plot of Intervention Model and Status
 ggplot(data = current_data) + geom_mosaic(aes(x = product(overall_status, intervention_model), fill = overall_status)) + 
   labs(x = 'Intervention Model', y = 'Overall Status', fill = 'Overall Status') + ggtitle("Intervention Models and Overall Status") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
-# Things to clean:
-### Allocation - Random sample needs to join Randomized -- done
-### Rename the blank intervention_model, intervention_type, allocation, and primary_purpose rows as "Not Listed" or "Unknown" -- done
-### Combine Phases as follows: -- done
-  ### Phase 1/Phase 2 -> Phase 1
-  ### Phase 2/Phase 3 -> Phase 2
-### Reorder phases using current_data$phasef <- factor(current_data$phase, levels = c('Phase 1', 'Phase 2', 'Phase 3', 'Phase 4', 'N/A')) -- done
-
 # mosaic plot of Intervention Type and Status
 ggplot(data = current_data) + geom_mosaic(aes(x = product(overall_status, intervention_type), fill = overall_status)) + 
   labs(x = 'Intervention Type', y = 'Overall Status', fill = 'Overall Status') + ggtitle("Intervention Type and Overall Status") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
-#fix phases
-current_data$phase[current_data$phase=='Early Phase 1']='Phase 1'
-current_data$phase[current_data$phase=='Phase 1/Phase 2']='Phase 1'
-current_data$phase[current_data$phase=='Phase 2/Phase 3']='Phase 2'
-
-current_data$phasef <- factor(current_data$phase, levels = c('Phase 1', 'Phase 2', 'Phase 3', 'Phase 4', 'N/A'))
-
-
 # Facet wrap by phase: shows the changing proportion of statuses by enrollment for each
 ggplot(data = current_data, aes(x = enrollment_level, fill = overall_status)) + geom_bar(position = 'fill') + 
   facet_wrap(~phasef) + labs(x = 'Enrollment', y = 'Proportion', fill = 'Overall Status') + 
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) + ggtitle('Interaction Between Phase and Enrollment')
-
 # showed to Follett
-
-## clean allocation
-current_data$allocation[current_data$allocation == 'Random Sample'] <- 'Randomized' #combining random sample with randomized
-
-## rename blank values in allocation to "Not Listed"
-current_data$allocation[current_data$allocation == ''] <- 'Not Listed' 
-## rename blank values in intervention_model to "Not Listed"
-current_data$intervention_model[current_data$intervention_model == ''] <- 'Not Listed' 
-## rename NA values in intervention_type to 'Not Listed'
-current_data$intervention_type[is.na(current_data$intervention_type)] <- 'Not Listed' 
-## rename blank values in primary_purpose to 'Not Listed'
-current_data$primary_purpose[current_data$primary_purpose == ''] <- 'Not Listed' 
-## rename blank values in has_dmc to 'Not Listed'
-# convert to character
-current_data$has_dmc <- as.character(current_data$has_dmc)
-current_data$has_dmc[is.na(current_data$has_dmc)] <- 'Not Listed' 
 
 
 ####################
@@ -219,40 +207,33 @@ frow1 <- fluidRow(
       ,solidHeader = TRUE 
       ,collapsible = TRUE
       ,width = 6
-      ,plotOutput("plot1", height = 250)), #this gets plot2 (created in server)
+      ,plotOutput("plot1", height = 250)),
   box(title = "Intervention Types and Overall Status"
       ,solidHeader = TRUE 
       ,collapsible = TRUE
       ,width = 6
-      ,plotOutput("plot2", height = 250)) #this gets plot3 (created in server)
+      ,plotOutput("plot2", height = 250))
 )
 
-
-#second two plots in the same row
 frow2 <- fluidRow(
-  #combine two 'boxes' in a single row
-  #each box is of width 6 - they evenly share the space
   box(title = "Interaction Between Phase/Enrollment"
       ,solidHeader = TRUE 
       ,collapsible = TRUE
       ,width = 12
-      ,plotOutput("plot3", height = 300)), #this gets plot2 (created in server)
+      ,plotOutput("plot3", height = 250)),
 )
 
-#on a third row,include the data table
-frow3 <-  fluidRow(
-  #combine two 'boxes' in a single row
-  #each box is of width 6 - they evenly share the space
+frow3 <- fluidRow(
   box(title = "Distribution of Enrollment by Phase"
       ,solidHeader = TRUE 
       ,collapsible = TRUE
       ,width = 6
-      ,plotOutput("plot4", height = 250)), #this gets plot2 (created in server)
+      ,plotOutput("plot4", height = 250)),
   box(title = "Enrollment Levels with Overall Status"
       ,solidHeader = TRUE 
       ,collapsible = TRUE
       ,width = 6
-      ,plotOutput("plot5", height = 250)) #this gets plot3 (created in server)
+      ,plotOutput("plot5", height = 250)) 
 )
 
 ui <- dashboardPage(skin = "blue",
@@ -267,32 +248,26 @@ ui <- dashboardPage(skin = "blue",
 )
 
 server <- function(input, output) {
-  #output is a list object that contains
-  #something i've named plot1
   output$plot1 <- renderPlot({
     ggplot(data = current_data) + geom_mosaic(aes(x = product(overall_status, intervention_model), fill = overall_status)) + 
       labs(x = 'Intervention Model', y = 'Overall Status', fill = 'Overall Status') + ggtitle("Intervention Models and Overall Status") +
       theme(axis.text.x = element_text(angle = 45, hjust = 1))
   })
-  #something i've named plot2
   output$plot2 <- renderPlot({
     ggplot(data = current_data) + geom_mosaic(aes(x = product(overall_status, intervention_type), fill = overall_status)) + 
       labs(x = 'Intervention Type', y = 'Overall Status', fill = 'Overall Status') + ggtitle("Intervention Type and Overall Status") +
       theme(axis.text.x = element_text(angle = 45, hjust = 1))
   })
-  #something i've named plot3
   output$plot3 <- renderPlot({
     ggplot(data = current_data, aes(x = enrollment_level, fill = overall_status)) + geom_bar(position = 'fill') + 
       facet_wrap(~phasef) + labs(x = 'Enrollment', y = 'Proportion', fill = 'Overall Status') + 
       theme(axis.text.x = element_text(angle = 45, hjust = 1)) + ggtitle('Interaction Between Phase and Enrollment')
   })
-  #something i've named plot4
   output$plot4 <- renderPlot({
     ggplot(data = current_data, aes(x = phase, color = phase, fill = phase)) +
       geom_bar() + facet_wrap(~overall_status, scales ='free') + 
       labs(x = 'Phase', y = 'Count') + ggtitle("Completed/Terminated Trials by Phase")
   })
-  #something i've named plot5
   output$plot5 <- renderPlot({
     ggplot(data = current_data, aes(x = enrollment_level, fill = overall_status)) +
       geom_bar(position = 'fill') + labs(x = 'Enrollment', y = 'Proportion', fill = 'Overall Status') + 
