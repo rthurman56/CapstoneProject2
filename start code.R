@@ -1,4 +1,5 @@
 library(ggplot2) #for plotting
+library(ggmosaic) #for mosaic plots
 library(RColorBrewer) #for custom color palettes
 library(dplyr) #for manipulating, aggregating, piping
 library(tidytext) #for (tidy) text mining
@@ -216,11 +217,12 @@ frow1 <- fluidRow(
 )
 
 frow2 <- fluidRow(
-  box(title = "Interaction Between Phase/Enrollment"
-      ,solidHeader = TRUE 
-      ,collapsible = TRUE
-      ,width = 12
-      ,plotOutput("plot3", height = 250)),
+  box(plotOutput("plot3", height = 250), width = 12)
+  #box(title = "Interaction Between Phase and Enrollment"
+   #   ,solidHeader = TRUE 
+    #  ,collapsible = TRUE
+     # ,width = 12
+      #,plotOutput("plot3", height = 250)),
 )
 
 frow3 <- fluidRow(
@@ -250,28 +252,27 @@ ui <- dashboardPage(skin = "blue",
 server <- function(input, output) {
   output$plot1 <- renderPlot({
     ggplot(data = current_data) + geom_mosaic(aes(x = product(overall_status, intervention_model), fill = overall_status)) + 
-      labs(x = 'Intervention Model', y = 'Overall Status', fill = 'Overall Status') + ggtitle("Intervention Models and Overall Status") +
+      labs(x = 'Intervention Model', y = 'Overall Status', fill = 'Overall Status') +
       theme(axis.text.x = element_text(angle = 45, hjust = 1))
   })
   output$plot2 <- renderPlot({
     ggplot(data = current_data) + geom_mosaic(aes(x = product(overall_status, intervention_type), fill = overall_status)) + 
-      labs(x = 'Intervention Type', y = 'Overall Status', fill = 'Overall Status') + ggtitle("Intervention Type and Overall Status") +
+      labs(x = 'Intervention Type', y = 'Overall Status', fill = 'Overall Status') +
       theme(axis.text.x = element_text(angle = 45, hjust = 1))
   })
   output$plot3 <- renderPlot({
     ggplot(data = current_data, aes(x = enrollment_level, fill = overall_status)) + geom_bar(position = 'fill') + 
       facet_wrap(~phasef) + labs(x = 'Enrollment', y = 'Proportion', fill = 'Overall Status') + 
-      theme(axis.text.x = element_text(angle = 45, hjust = 1)) + ggtitle('Interaction Between Phase and Enrollment')
+      theme(axis.text.x = element_text(angle = 45, hjust = 1))
   })
   output$plot4 <- renderPlot({
     ggplot(data = current_data, aes(x = phase, color = phase, fill = phase)) +
       geom_bar() + facet_wrap(~overall_status, scales ='free') + 
-      labs(x = 'Phase', y = 'Count') + ggtitle("Completed/Terminated Trials by Phase")
+      labs(x = 'Phase', y = 'Count')
   })
   output$plot5 <- renderPlot({
     ggplot(data = current_data, aes(x = enrollment_level, fill = overall_status)) +
-      geom_bar(position = 'fill') + labs(x = 'Enrollment', y = 'Proportion', fill = 'Overall Status') + 
-      ggtitle("Enrollment Levels with Overall Status")
+      geom_bar(position = 'fill') + labs(x = 'Enrollment', y = 'Proportion', fill = 'Overall Status')
 })
 
 }
