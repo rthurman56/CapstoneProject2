@@ -238,6 +238,18 @@ frow3 <- fluidRow(
       ,plotOutput("plot5", height = 250)) 
 )
 
+#choose image file
+outputID <- choose.files()  
+
+frow4 <- fluidRow(
+  box(title = "Enrollment Levels with Overall Status"
+      ,solidHeader = TRUE 
+      ,collapsible = TRUE
+      ,width = 6
+      ,imageOutput(outputID, width = "100%", height = "400px", inline = FALSE))
+)
+
+
 ui <- dashboardPage(skin = "blue",
                     dashboardHeader(title = "Clinical Trials"),
                     dashboardSidebar(),
@@ -245,7 +257,8 @@ ui <- dashboardPage(skin = "blue",
                     dashboardBody(
                       frow1, #these are all defined above
                       frow2,
-                      frow3
+                      frow3,
+                      frow4
                     )
 )
 
