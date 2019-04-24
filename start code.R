@@ -192,4 +192,11 @@ current_data$allocation[current_data$allocation == ''] <- 'Not Listed'
 current_data$intervention_model[current_data$intervention_model == ''] <- 'Not Listed' 
 ## rename NA values in intervention_type to 'Not Listed'
 current_data$intervention_type[is.na(current_data$intervention_type)] <- 'Not Listed' 
+## rename blank values in primary_purpose to 'Not Listed'
+current_data$primary_purpose[current_data$primary_purpose == ''] <- 'Not Listed' 
+## rename blank values in has_dmc to 'Not Listed'
+# convert to character
+current_data$has_dmc <- as.character(current_data$has_dmc)
+current_data$has_dmc[is.na(current_data$has_dmc)] <- 'Not Listed' 
+
 
