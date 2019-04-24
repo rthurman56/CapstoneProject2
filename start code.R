@@ -214,40 +214,17 @@ current_data$has_dmc[is.na(current_data$has_dmc)] <- 'Not Listed'
 ## DASHBOARD TIME ##
 ####################
 
-
-ui <- dashboardPage(skin = "blue",
-                    dashboardHeader(title = "Clinical Trials"),
-                    dashboardSidebar(),
-                    dashboardBody(
-                      # Boxes need to be put in a fluidRow (or fluidColumn)
-                      fluidRow(
-                        #here, I call plot1 from the output
-                        box(plotOutput("plot1", height = 250)), #need to make sure you create plot1 in the server
-                        column(12,
-                               dataTableOutput('table')
-                        )
-                      )
-                    )
-)
-
-server <- function(input, output) {
-  #output is a list object that contains
-  #something i've named plot1
-  output$plot1 <- renderPlot({ #plot belongs to output
-    ggplot(data = current_data) + geom_mosaic(aes(x = product(overall_status, intervention_model), fill = overall_status)) + 
-      labs(x = 'Intervention Model', y = 'Overall Status', fill = 'Overall Status') + ggtitle("Intervention Models and Overall Status") +
-      theme(axis.text.x = element_text(angle = 45, hjust = 1))
-  })
-}
-
-shinyApp(ui, server)
-
-#####
-
 frow1 <- fluidRow(
-  #here, I call plot1 from the output
-  #width = 12 to take up whole screen
-  box(plotOutput("plot1", height = 250), width = 6)
+  box(title = "Intervention Models and Overall Status"
+      ,solidHeader = TRUE 
+      ,collapsible = TRUE
+      ,width = 6
+      ,plotOutput("plot1", height = 250)), #this gets plot2 (created in server)
+  box(title = "Intervention Types and Overall Status"
+      ,solidHeader = TRUE 
+      ,collapsible = TRUE
+      ,width = 6
+      ,plotOutput("plot2", height = 250)) #this gets plot3 (created in server)
 )
 
 
@@ -255,25 +232,31 @@ frow1 <- fluidRow(
 frow2 <- fluidRow(
   #combine two 'boxes' in a single row
   #each box is of width 6 - they evenly share the space
-  box(title = "Distribution of Sepal Width"
+  box(title = "Interaction Between Phase/Enrollment"
       ,solidHeader = TRUE 
       ,collapsible = TRUE
-      ,width = 6
-      ,plotOutput("plot2", height = 250)), #this gets plot2 (created in server)
-  box(title = "Distribution of Sepal Length"
-      ,solidHeader = TRUE 
-      ,collapsible = TRUE
-      ,width = 6
-      ,plotOutput("plot3", height = 250)) #this gets plot3 (created in server)
+      ,width = 12
+      ,plotOutput("plot3", height = 300)), #this gets plot2 (created in server)
 )
 
 #on a third row,include the data table
-frow3 <-  fluidRow(column(12,
-                          dataTableOutput('table'))
+frow3 <-  fluidRow(
+  #combine two 'boxes' in a single row
+  #each box is of width 6 - they evenly share the space
+  box(title = "Distribution of Enrollment by Phase"
+      ,solidHeader = TRUE 
+      ,collapsible = TRUE
+      ,width = 6
+      ,plotOutput("plot4", height = 250)), #this gets plot2 (created in server)
+  box(title = "Enrollment Levels with Overall Status"
+      ,solidHeader = TRUE 
+      ,collapsible = TRUE
+      ,width = 6
+      ,plotOutput("plot5", height = 250)) #this gets plot3 (created in server)
 )
 
-ui <- dashboardPage(skin = "yellow",
-                    dashboardHeader(title = "A good title"),
+ui <- dashboardPage(skin = "blue",
+                    dashboardHeader(title = "Clinical Trials"),
                     dashboardSidebar(),
                     # combine the three fluid rows to make the body
                     dashboardBody(
@@ -287,20 +270,37 @@ server <- function(input, output) {
   #output is a list object that contains
   #something i've named plot1
   output$plot1 <- renderPlot({
-    ggplot(data = iris) +
-      geom_point(aes(Sepal.Width, Sepal.Length, colour = Species))
+    ggplot(data = current_data) + geom_mosaic(aes(x = product(overall_status, intervention_model), fill = overall_status)) + 
+      labs(x = 'Intervention Model', y = 'Overall Status', fill = 'Overall Status') + ggtitle("Intervention Models and Overall Status") +
+      theme(axis.text.x = element_text(angle = 45, hjust = 1))
   })
   #something i've named plot2
   output$plot2 <- renderPlot({
-    ggplot(data = iris) +
-      geom_density(aes(Sepal.Width, fill = Species))
+    ggplot(data = current_data) + geom_mosaic(aes(x = product(overall_status, intervention_type), fill = overall_status)) + 
+      labs(x = 'Intervention Type', y = 'Overall Status', fill = 'Overall Status') + ggtitle("Intervention Type and Overall Status") +
+      theme(axis.text.x = element_text(angle = 45, hjust = 1))
   })
   #something i've named plot3
   output$plot3 <- renderPlot({
-    ggplot(data = iris) +
-      geom_density(aes(Sepal.Length, fill = Species))
+    ggplot(data = current_data, aes(x = enrollment_level, fill = overall_status)) + geom_bar(position = 'fill') + 
+      facet_wrap(~phasef) + labs(x = 'Enrollment', y = 'Proportion', fill = 'Overall Status') + 
+      theme(axis.text.x = element_text(angle = 45, hjust = 1)) + ggtitle('Interaction Between Phase and Enrollment')
   })
-  #something i've named table
-  output$table <- renderDataTable(iris)
+  #something i've named plot4
+  output$plot4 <- renderPlot({
+    ggplot(data = current_data, aes(x = phase, color = phase, fill = phase)) +
+      geom_bar() + facet_wrap(~overall_status, scales ='free') + 
+      labs(x = 'Phase', y = 'Count') + ggtitle("Completed/Terminated Trials by Phase")
+  })
+  #something i've named plot5
+  output$plot5 <- renderPlot({
+    ggplot(data = current_data, aes(x = enrollment_level, fill = overall_status)) +
+      geom_bar(position = 'fill') + labs(x = 'Enrollment', y = 'Proportion', fill = 'Overall Status') + 
+      ggtitle("Enrollment Levels with Overall Status")
+})
+
 }
+
+shinyApp(ui, server)
+
 
