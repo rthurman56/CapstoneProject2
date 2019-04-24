@@ -176,7 +176,7 @@ ggplot(data = current_data) + geom_mosaic(aes(x = product(overall_status, interv
 ### Combine Phases as follows:
   ### Phase 1/Phase 2 -> Phase 1
   ### Phase 2/Phase 3 -> Phase 2
-### Reorder phases using current_data$phasef <- factor(current_data$phase, levels = c('Early Phase 1', 'Phase 1', 'Phase 2', 'Phase 3', 'Phase 4', 'N/A'))
+### Reorder phases using current_data$phasef <- factor(current_data$phase, levels = c('Phase 1', 'Phase 2', 'Phase 3', 'Phase 4', 'N/A'))
 
 # mosaic plot of Intervention Type and Status
 ggplot(data = current_data) + geom_mosaic(aes(x = product(overall_status, intervention_type), fill = overall_status)) + 
