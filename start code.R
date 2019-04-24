@@ -116,8 +116,8 @@ ggplot(data = current_data, aes(x = overall_status, color = intervention_type, f
 
 ### Exploratory Plots with Enrollment Level
 # stacked bar chart of each enrollment level and their statuses (stacks)
-ggplot(data = current_data, aes(x = enrollment_level, color = overall_status, fill = overall_status)) +
-  geom_bar(position = 'fill') + labs(x = 'Enrollment', y = 'Count') + ggtitle("Enrollment Levels with Overall Status")
+ggplot(data = current_data, aes(x = enrollment_level, fill = overall_status)) +
+  geom_bar(position = 'fill') + labs(x = 'Enrollment', y = 'Proportion', fill = 'Overall Status') + ggtitle("Enrollment Levels with Overall Status")
 
 ### Exploratory Plots with Phase
 # consider grouping these back together and taking N/A out
@@ -150,8 +150,10 @@ ggplot(data = current_data, aes(x = overall_status, fill = allocation)) +
  #########################################################################################
 
 # Facet wrap by phase: shows the changing proportion of statuses by enrollment for each
-ggplot(data = current_data, aes(x = enrollment_level, color = overall_status, fill = overall_status)) + geom_bar(position = 'fill') + 
-  facet_wrap(~phase) + labs(x = 'Enrollment')
+ggplot(data = current_data, aes(x = enrollment_level, fill = overall_status)) + geom_bar(position = 'fill') + 
+  facet_wrap(~phase) + labs(x = 'Enrollment', y = 'Proportion', fill = 'Overall Status') + 
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + ggtitle('Interaction Between Phase and Enrollment')
+
 # showed to Follett
 
 # mosaic plot of Intervention Model and Status
@@ -167,3 +169,7 @@ ggplot(data = current_data) + geom_mosaic(aes(x = product(overall_status, interv
   ### Phase 2/Phase 3 -> Phase 2
 ### Reorder phases using current_data$phasef <- factor(current_data$phase, levels = c('Early Phase 1', 'Phase 1', 'Phase 2', 'Phase 3', 'Phase 4', 'N/A'))
 
+# mosaic plot of Intervention Type and Status
+ggplot(data = current_data) + geom_mosaic(aes(x = product(overall_status, intervention_type), fill = overall_status)) + 
+  labs(x = 'Intervention Type', y = 'Overall Status', fill = 'Overall Status') + ggtitle("Intervention Type and Overall Status") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
