@@ -183,6 +183,11 @@ ggplot(data = current_data) + geom_mosaic(aes(x = product(overall_status, interv
   labs(x = 'Intervention Type', y = 'Overall Status', fill = 'Overall Status') + ggtitle("Intervention Type and Overall Status") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
+#fix phases
+current_data$phase[current_data$phase=='Early Phase 1']='Phase 1'
+current_data$phase[current_data$phase=='Phase 1/Phase 2']='Phase 1'
+current_data$phase[current_data$phase=='Phase 2/Phase 3']='Phase 2'
+
 ## clean allocation
 current_data$allocation[current_data$allocation == 'Random Sample'] <- 'Randomized' #combining random sample with randomized
 
@@ -198,5 +203,6 @@ current_data$primary_purpose[current_data$primary_purpose == ''] <- 'Not Listed'
 # convert to character
 current_data$has_dmc <- as.character(current_data$has_dmc)
 current_data$has_dmc[is.na(current_data$has_dmc)] <- 'Not Listed' 
+
 
 
