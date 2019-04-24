@@ -4,6 +4,8 @@ library(dplyr) #for manipulating, aggregating, piping
 library(tidytext) #for (tidy) text mining
 library(topicmodels) #for LDA (topic modeling)
 library(reshape2) #for reshaping data (long to wide or wide to long)
+library(shinydashboard)
+library(shiny)
 
 #read data in
 brief_summaries=read.csv(file.choose(), header = TRUE)
@@ -158,25 +160,18 @@ ggplot(data = current_data, aes(x = overall_status, fill = allocation)) +
 # end of claire playing around with categoricals #
  #########################################################################################
 
-# Facet wrap by phase: shows the changing proportion of statuses by enrollment for each
-ggplot(data = current_data, aes(x = enrollment_level, fill = overall_status)) + geom_bar(position = 'fill') + 
-  facet_wrap(~phase) + labs(x = 'Enrollment', y = 'Proportion', fill = 'Overall Status') + 
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + ggtitle('Interaction Between Phase and Enrollment')
-
-# showed to Follett
-
 # mosaic plot of Intervention Model and Status
 ggplot(data = current_data) + geom_mosaic(aes(x = product(overall_status, intervention_model), fill = overall_status)) + 
   labs(x = 'Intervention Model', y = 'Overall Status', fill = 'Overall Status') + ggtitle("Intervention Models and Overall Status") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 # Things to clean:
-### Allocation - Random sample needs to join Randomized
-### Rename the blank intervention_model, intervention_type, allocation, and primary_purpose rows as "Not Listed" or "Unknown"
-### Combine Phases as follows:
+### Allocation - Random sample needs to join Randomized -- done
+### Rename the blank intervention_model, intervention_type, allocation, and primary_purpose rows as "Not Listed" or "Unknown" -- done
+### Combine Phases as follows: -- done
   ### Phase 1/Phase 2 -> Phase 1
   ### Phase 2/Phase 3 -> Phase 2
-### Reorder phases using current_data$phasef <- factor(current_data$phase, levels = c('Phase 1', 'Phase 2', 'Phase 3', 'Phase 4', 'N/A'))
+### Reorder phases using current_data$phasef <- factor(current_data$phase, levels = c('Phase 1', 'Phase 2', 'Phase 3', 'Phase 4', 'N/A')) -- done
 
 # mosaic plot of Intervention Type and Status
 ggplot(data = current_data) + geom_mosaic(aes(x = product(overall_status, intervention_type), fill = overall_status)) + 
@@ -187,6 +182,16 @@ ggplot(data = current_data) + geom_mosaic(aes(x = product(overall_status, interv
 current_data$phase[current_data$phase=='Early Phase 1']='Phase 1'
 current_data$phase[current_data$phase=='Phase 1/Phase 2']='Phase 1'
 current_data$phase[current_data$phase=='Phase 2/Phase 3']='Phase 2'
+
+current_data$phasef <- factor(current_data$phase, levels = c('Phase 1', 'Phase 2', 'Phase 3', 'Phase 4', 'N/A'))
+
+
+# Facet wrap by phase: shows the changing proportion of statuses by enrollment for each
+ggplot(data = current_data, aes(x = enrollment_level, fill = overall_status)) + geom_bar(position = 'fill') + 
+  facet_wrap(~phasef) + labs(x = 'Enrollment', y = 'Proportion', fill = 'Overall Status') + 
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + ggtitle('Interaction Between Phase and Enrollment')
+
+# showed to Follett
 
 ## clean allocation
 current_data$allocation[current_data$allocation == 'Random Sample'] <- 'Randomized' #combining random sample with randomized
@@ -205,4 +210,97 @@ current_data$has_dmc <- as.character(current_data$has_dmc)
 current_data$has_dmc[is.na(current_data$has_dmc)] <- 'Not Listed' 
 
 
+####################
+## DASHBOARD TIME ##
+####################
+
+
+ui <- dashboardPage(skin = "blue",
+                    dashboardHeader(title = "Clinical Trials"),
+                    dashboardSidebar(),
+                    dashboardBody(
+                      # Boxes need to be put in a fluidRow (or fluidColumn)
+                      fluidRow(
+                        #here, I call plot1 from the output
+                        box(plotOutput("plot1", height = 250)), #need to make sure you create plot1 in the server
+                        column(12,
+                               dataTableOutput('table')
+                        )
+                      )
+                    )
+)
+
+server <- function(input, output) {
+  #output is a list object that contains
+  #something i've named plot1
+  output$plot1 <- renderPlot({ #plot belongs to output
+    ggplot(data = current_data) + geom_mosaic(aes(x = product(overall_status, intervention_model), fill = overall_status)) + 
+      labs(x = 'Intervention Model', y = 'Overall Status', fill = 'Overall Status') + ggtitle("Intervention Models and Overall Status") +
+      theme(axis.text.x = element_text(angle = 45, hjust = 1))
+  })
+}
+
+shinyApp(ui, server)
+
+#####
+
+frow1 <- fluidRow(
+  #here, I call plot1 from the output
+  #width = 12 to take up whole screen
+  box(plotOutput("plot1", height = 250), width = 6)
+)
+
+
+#second two plots in the same row
+frow2 <- fluidRow(
+  #combine two 'boxes' in a single row
+  #each box is of width 6 - they evenly share the space
+  box(title = "Distribution of Sepal Width"
+      ,solidHeader = TRUE 
+      ,collapsible = TRUE
+      ,width = 6
+      ,plotOutput("plot2", height = 250)), #this gets plot2 (created in server)
+  box(title = "Distribution of Sepal Length"
+      ,solidHeader = TRUE 
+      ,collapsible = TRUE
+      ,width = 6
+      ,plotOutput("plot3", height = 250)) #this gets plot3 (created in server)
+)
+
+#on a third row,include the data table
+frow3 <-  fluidRow(column(12,
+                          dataTableOutput('table'))
+)
+
+ui <- dashboardPage(skin = "yellow",
+                    dashboardHeader(title = "A good title"),
+                    dashboardSidebar(),
+                    # combine the three fluid rows to make the body
+                    dashboardBody(
+                      frow1, #these are all defined above
+                      frow2,
+                      frow3
+                    )
+)
+
+server <- function(input, output) {
+  #output is a list object that contains
+  #something i've named plot1
+  output$plot1 <- renderPlot({
+    ggplot(data = iris) +
+      geom_point(aes(Sepal.Width, Sepal.Length, colour = Species))
+  })
+  #something i've named plot2
+  output$plot2 <- renderPlot({
+    ggplot(data = iris) +
+      geom_density(aes(Sepal.Width, fill = Species))
+  })
+  #something i've named plot3
+  output$plot3 <- renderPlot({
+    ggplot(data = iris) +
+      geom_density(aes(Sepal.Length, fill = Species))
+  })
+  #something i've named table
+  output$table <- renderDataTable(iris)
+}
 
