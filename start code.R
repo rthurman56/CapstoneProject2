@@ -81,6 +81,15 @@ hist(temp$enrollment)
 # create levels of enrollment
 current_data$enrollment_level <- cut(current_data$enrollment, c(-1,21,43,80,199,999,67128927))
 
+ggplot(data = current_data) +
+  geom_bar(aes(x = intervention_model, fill = enrollment_level))
+
+ggplot(data = current_data) +
+  geom_bar(aes(x = overall_status, fill = enrollment_level), position = "fill")
+
+ggplot(data = current_data) +
+  geom_bar(aes(x = allocation, fill = enrollment_level), position = "fill")
+
 #########################################################################################
 # Claire playing around with categoricals -- will be deleting most
 
@@ -173,7 +182,4 @@ ggplot(data = current_data) + geom_mosaic(aes(x = product(overall_status, interv
 ggplot(data = current_data) + geom_mosaic(aes(x = product(overall_status, intervention_type), fill = overall_status)) + 
   labs(x = 'Intervention Type', y = 'Overall Status', fill = 'Overall Status') + ggtitle("Intervention Type and Overall Status") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
-
-
-## Cleaning Allocation
 
