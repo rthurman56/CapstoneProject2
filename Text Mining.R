@@ -86,6 +86,15 @@ tokens <- current_data %>% unnest_tokens(word, description)
 #see first few rows - note reach row is now a single description (token)
 head(tokens)
 data(stop_words)
+
+#adding more words to stop_words
+my_stop_words <- data.frame(word = c("patient","patients","study", "studies", 
+                                     "treatment", "treatments", "test", "tests", "day", "days", 
+                                     "week", "weeks", "month", "months", "year", "years", "purpose",
+                                     "clinical", "trial", "trials"),
+                            lexicon = "mine")
+stop_words <- rbind(stop_words, my_stop_words)
+
 #remove all rows consisting of a stop description
 tokens_clean <- tokens %>% anti_join(stop_words)
 tokens_count <- tokens_clean %>%
@@ -113,7 +122,10 @@ dtm <- tokens_count %>%
   cast_dtm(nct_id, word, n)
 
 #lda
+lda <- LDA(dtm, k = 10, control = list(seed = 1234))
+=======
 lda <- LDA(dtm, k = 4, control = list(seed = 1234))
+>>>>>>> 8041e3282f5c89495af65dcbcc40b4df0cf95bbd
 
 topics <- tidy(lda, matrix = "beta")
 #get a small data frame of the top 10 descriptions for each topic
