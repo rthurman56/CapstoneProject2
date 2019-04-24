@@ -80,3 +80,12 @@ hist(temp$enrollment)
 
 # create levels of enrollment
 current_data$enrollment_level <- cut(current_data$enrollment, c(-1,21,43,80,199,999,67128927))
+
+ggplot(data = current_data) +
+  geom_bar(aes(x = intervention_model, fill = enrollment_level))
+
+ggplot(data = current_data) +
+  geom_bar(aes(x = overall_status, fill = enrollment_level), position = "fill")
+
+ggplot(data = current_data) +
+  geom_bar(aes(x = allocation, fill = enrollment_level), position = "fill")
