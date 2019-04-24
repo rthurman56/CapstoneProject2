@@ -217,12 +217,12 @@ frow1 <- fluidRow(
 )
 
 frow2 <- fluidRow(
-  box(plotOutput("plot3", height = 250), width = 12)
-  #box(title = "Interaction Between Phase and Enrollment"
-   #   ,solidHeader = TRUE 
-    #  ,collapsible = TRUE
-     # ,width = 12
-      #,plotOutput("plot3", height = 250)),
+  #box(title = "test",plotOutput("plot3", height = 250), width = 12, collapsible = TRUE)
+  box(title = "Interaction Between Phase and Enrollment"
+      ,solidHeader = TRUE 
+      ,collapsible = TRUE
+      ,width = 12
+      ,plotOutput("plot3", height = 250))
 )
 
 frow3 <- fluidRow(
