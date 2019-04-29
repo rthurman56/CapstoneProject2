@@ -223,7 +223,7 @@ documents_w<- documents %>%
   select(document, topic, gamma) %>%
   dcast(document ~ topic, value.var = "gamma")
 
-colnames(documents_w) <- c("nct_id", "HeartHealth", "Cancer", "PhysiologicalEffects", "Diabetes/Type", "Pain/Surgery", "HIV", "PostCare", "DrugDosage", "WeightLoss", "TrialExecution")
+colnames(documents_w) <- c("nct_id", "HeartHealth", "TumorGrowth", "Hepatitis/StemCell", "Cancer", "PostCare", "BrainStudy", "Diabetes/Types", "DrugDosage", "PhysiologicalEffects", "TrialExecution")
 
 lab_lda <- merge(documents_w, current_data, by="nct_id", all = T)
 

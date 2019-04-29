@@ -229,7 +229,7 @@ tokens_count <- tokens_clean %>%
   count(word, sort = TRUE) %>%
   #reorders the factor levels for the plot
   mutate(word = reorder(word,n))
-#Note: tokens has a row for every description in every review
+#tokens has a row for every description in every review
 #tokens_count has a row for every unique description.
 #view the first 10 descriptions:
 ggplot(data = tokens_count[1:10,]) +
@@ -267,11 +267,6 @@ top_terms %>%
   geom_col(show.legend = FALSE) +
   facet_wrap(~ topic, scales = "free") +
   coord_flip()
-
-#We might informally assign names/labels to these topics
-#this is subjective - that's ok - this is exploratory
-#Perhaps topic 1 = "Food"
-# topic 2 = "Experience and service"
 
 #per-document-per-topic probabilities
 documents <- tidy(lda, matrix = "gamma")
@@ -422,6 +417,9 @@ top_terms <- topics %>%
   arrange(topic, -beta)
 top_terms
 
+top_terms$topic <- factor(top_terms$topic,
+                          labels = c("HeartHealth", "TumorGrowth", "Hepatitis/StemCell", "Cancer", "PostCare", "BrainStudy", "Diabetes/Types", "DrugDosage", "PhysiologicalEffects", "TrialExecution"))
+
 top_terms %>%
   mutate(term = reorder(term, beta)) %>%
   ggplot(aes(term, beta, fill = factor(topic))) +
@@ -429,17 +427,12 @@ top_terms %>%
   facet_wrap(~ topic, scales = "free") +
   coord_flip()
 
-#We might informally assign names/labels to these topics
-#this is subjective - that's ok - this is exploratory
-#Perhaps topic 1 = "Food"
-# topic 2 = "Experience and service"
-
 #per-document-per-topic probabilities
 documents <- tidy(lda, matrix = "gamma")
 documents_w<- documents %>%
   select(document, topic, gamma) %>%
   dcast(document ~ topic, value.var = "gamma")
-colnames(documents_w) <- c("nct_id", "Topic1", "Topic2")
+colnames(documents_w) <- c("nct_id", "HeartHealth", "TumorGrowth", "Hepatitis/StemCell", "Cancer", "PostCare", "BrainStudy", "Diabetes/Types", "DrugDosage", "PhysiologicalEffects", "TrialExecution")
 lab_lda <- merge(documents_w, current_data, by="nct_id", all = T)
 str(lab_lda)
 
