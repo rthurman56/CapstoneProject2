@@ -242,10 +242,10 @@ frow3 <- fluidRow(
 outputID <- choose.files()  
 
 frow4 <- fluidRow(
-  box(title = "Enrollment Levels with Overall Status"
+  box(title = "LDA Topics"
       ,solidHeader = TRUE 
       ,collapsible = TRUE
-      ,width = 6
+      ,width = 12
       ,imageOutput(outputID, width = "100%", height = "400px", inline = FALSE))
 )
 
