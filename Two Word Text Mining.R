@@ -203,7 +203,8 @@ top_terms %>%
   ggplot(aes(term, beta, fill = factor(topic))) +
   geom_col(show.legend = FALSE) +
   facet_wrap(~ topic, scales = "free") +
-  coord_flip()
+  coord_flip() +   theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
 
 #We might informally assign names/labels to these topics
 #this is subjective - that's ok - this is exploratory
@@ -215,8 +216,12 @@ documents <- tidy(lda, matrix = "gamma")
 documents_w<- documents %>%
   select(document, topic, gamma) %>%
   dcast(document ~ topic, value.var = "gamma")
-colnames(documents_w) <- c("nct_id", "Topic1", "Topic2")
+
+colnames(documents_w) <- c("nct_id", "Topic1", "Topic2", "Topic3", "Topic4", "Topic5", "Topic6", "Topic7", "Topic8", "Topic9", "Topic10")
+
 lab_lda <- merge(documents_w, current_data, by="nct_id", all = T)
+
+
 str(lab_lda)
 
 #model probability of a  status_bin review based on topic1 probability
