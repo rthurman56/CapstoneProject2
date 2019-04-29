@@ -7,6 +7,10 @@ library(topicmodels) #for LDA (topic modeling)
 library(reshape2) #for reshaping data (long to wide or wide to long)
 library(shinydashboard)
 library(shiny)
+library(randomForest)
+library(caret)
+library(rpart)
+library(rpart.plot)
 
 #read data in
 brief_summaries=read.csv(file.choose(), header = TRUE)
@@ -198,6 +202,21 @@ ggplot(data = current_data, aes(x = enrollment_level, fill = overall_status)) + 
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) + ggtitle('Interaction Between Phase and Enrollment')
 # showed to Follett
 
+###########################
+## THIS FOREST IS RANDOM ##
+###########################
+
+smp_sz <- floor(nrow(current_data)*.7)
+
+train_idx <- sample(seq_len(nrow(current_data)), size = smp_sz)
+
+train.df <- current_data[train_idx,]
+test.df <- current_data[-train_idx,]
+
+train.df <- na.omit(train.df)
+
+myForest <- randomForest(overall_status ~., data = train.df, type = "class")
+myForest
 
 ####################
 ## DASHBOARD TIME ##
