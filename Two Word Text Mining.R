@@ -157,7 +157,8 @@ two_stop_words <- data.frame(word = c("with that","patients with","patients that
                                      "months of", "to use", "has not", "a total", "and its", "be compared",
                                      "types of", "will provide", "objective to", "in these", "not been",
                                      "that many", "increase the", "treatment is", "prevalence of",
-                                     "to treatment", "to an", "will examine", "results of", "combined with")
+                                     "to treatment", "to an", "will examine", "results of", 
+                                     "combined with", "of age")
                              ,lexicon = "mine")
 
 #remove all rows consisting of a stop description
@@ -170,7 +171,7 @@ tokens_count <- tokens_clean %>%
 #Note: tokens has a row for every description in every review
 #tokens_count has a row for every unique description.
 #view the first 10 descriptions:
-ggplot(data = tokens_count[290:340,]) +
+ggplot(data = tokens_count[1:10,]) +
   geom_col(aes(x=word, y=n)) +
   labs(x = "word", y = "Count")+
   coord_flip()
@@ -198,6 +199,9 @@ top_terms <- topics %>%
   arrange(topic, -beta)
 top_terms
 
+top_terms$topic <- factor(top_terms$topic,
+                          labels = c("HeartHealth", "TumorGrowth", "Hepatitis/StemCell", "Cancer", "PostCare", "BrainStudy", "Diabetes/Types", "DrugDosage", "PhysiologicalEffects", "TrialExecution"))
+
 top_terms %>%
   mutate(term = reorder(term, beta)) %>%
   ggplot(aes(term, beta, fill = factor(topic))) +
@@ -211,13 +215,15 @@ top_terms %>%
 #Perhaps topic 1 = "Food"
 # topic 2 = "Experience and service"
 
+
+
 #per-document-per-topic probabilities
 documents <- tidy(lda, matrix = "gamma")
 documents_w<- documents %>%
   select(document, topic, gamma) %>%
   dcast(document ~ topic, value.var = "gamma")
 
-colnames(documents_w) <- c("nct_id", "Topic1", "Topic2", "Topic3", "Topic4", "Topic5", "Topic6", "Topic7", "Topic8", "Topic9", "Topic10")
+colnames(documents_w) <- c("nct_id", "HeartHealth", "Cancer", "PhysiologicalEffects", "Diabetes/Type", "Pain/Surgery", "HIV", "PostCare", "DrugDosage", "WeightLoss", "TrialExecution")
 
 lab_lda <- merge(documents_w, current_data, by="nct_id", all = T)
 
