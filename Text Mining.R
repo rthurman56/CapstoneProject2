@@ -256,6 +256,8 @@ two_stop_words <- data.frame(word = c("with that","patients with","patients that
                                       "that many", "increase the", "treatment is", "prevalence of",
                                       "to treatment", "to an", "will examine", "results of", "combined with",
                                       "to improve", "of age", "the growth", "growth of", "the combination",
+                                      "combination of", "of pain", "find out", "patients undergoing", "years of",
+                                      "of age")
                              ,lexicon = "mine")
 
 #remove all rows consisting of a stop description
