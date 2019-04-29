@@ -299,7 +299,9 @@ one_topics <- topics
 one_top_terms <- top_terms
 one_tokens_tf_idf <- tokens_tf_idf
 
-#two word text mining
+######################
+#two word text mining#
+######################
 tokens <- current_data %>% unnest_tokens(word, description, token = "ngrams", n= 2)
 #see first few rows - note reach row is now a single description (token)
 head(tokens)
@@ -425,7 +427,7 @@ top_terms %>%
   ggplot(aes(term, beta, fill = factor(topic))) +
   geom_col(show.legend = FALSE) +
   facet_wrap(~ topic, scales = "free") +
-  coord_flip()
+  coord_flip() +   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 #per-document-per-topic probabilities
 documents <- tidy(lda, matrix = "gamma")
@@ -439,7 +441,7 @@ str(lab_lda)
 #model probability of a  status_bin review based on topic1 probability
 #logit(p) = beta_0 + beta_1*topic1
 lab_lda$overall_status <-I(lab_lda$overall_status== 'Terminated')
-m <- glm(status_bin ~ Topic1 , data = lab_lda,
+m <- glm(status_bin ~ HeartHealth , data = lab_lda,
          family = binomial)
 exp(coef(m))
 
