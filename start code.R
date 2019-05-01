@@ -439,6 +439,10 @@ lab_lda <- merge(documents_w, current_data, by="nct_id", all = T)
 str(lab_lda)
 
 
+### wrote file to csv, will now read it in from local computer
+lab_lda <- read.csv(file.choose(), header = T)
+
+
 ###########################
 ## THIS FOREST IS RANDOM ##
 ###########################
