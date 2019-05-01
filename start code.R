@@ -438,34 +438,25 @@ colnames(documents_w) <- c("nct_id", "HeartHealth", "TumorGrowth", "Hepatitis/St
 lab_lda <- merge(documents_w, current_data, by="nct_id", all = T)
 str(lab_lda)
 
-#model probability of a  status_bin review based on topic1 probability
-#logit(p) = beta_0 + beta_1*topic1
-lab_lda$overall_status <-I(lab_lda$overall_status== 'Terminated')
-m <- glm(status_bin ~ HeartHealth , data = lab_lda,
-         family = binomial)
-exp(coef(m))
-
-tokens_tf_idf <- tokens_clean %>%
-  count(nct_id, word, sort = TRUE)%>% #count number of times each word shows up in each review
-  bind_tf_idf(word, nct_id, n)%>%#use above count (n) to calculate tf, idf, tf-idf
-  arrange(desc(tf_idf))
-head(tokens_tf_idf)
 
 ###########################
 ## THIS FOREST IS RANDOM ##
 ###########################
 
-current_data$allocation <- as.factor(current_data$allocation)
-current_data$has_dmc <- as.factor(current_data$has_dmc)
-current_data$primary_purpose <- as.factor(current_data$primary_purpose)
-current_data$intervention_model <- as.factor(current_data$intervention_model)
-current_data$intervention_type <- as.factor(current_data$intervention_type)
+#merge lab_lda with current_data to make one for random forest use
+data_lda <- merge(current_data, lab_lda, by = 'nct_id', all.x = T, all.y = T)
 
-smp_sz <- floor(nrow(current_data)*.4)
+data_lda$allocation <- as.factor(data_lda$allocation)
+data_lda$has_dmc <- as.factor(data_lda$has_dmc)
+data_lda$primary_purpose <- as.factor(data_lda$primary_purpose)
+data_lda$intervention_model <- as.factor(data_lda$intervention_model)
+data_lda$intervention_type <- as.factor(data_lda$intervention_type)
 
-first_idx <- sample(seq_len(nrow(current_data)), size = smp_sz)
+smp_sz <- floor(nrow(data_lda)*.4)
 
-smol_df <- current_data[first_idx,]
+first_idx <- sample(seq_len(nrow(data_lda)), size = smp_sz)
+
+smol_df <- data_lda[first_idx,]
 
 smp_sz2 <- floor(nrow(smol_df)*.7)
 
