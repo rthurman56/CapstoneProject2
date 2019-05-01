@@ -461,12 +461,18 @@ current_data$primary_purpose <- as.factor(current_data$primary_purpose)
 current_data$intervention_model <- as.factor(current_data$intervention_model)
 current_data$intervention_type <- as.factor(current_data$intervention_type)
 
-smp_sz <- floor(nrow(current_data)*.7)
+smp_sz <- floor(nrow(current_data)*.4)
 
-train_idx <- sample(seq_len(nrow(current_data)), size = smp_sz)
+first_idx <- sample(seq_len(nrow(current_data)), size = smp_sz)
 
-train.df <- current_data[train_idx,]
-test.df <- current_data[-train_idx,]
+smol_df <- current_data[first_idx,]
+
+smp_sz2 <- floor(nrow(smol_df)*.7)
+
+train_idx <- sample(seq_len(nrow(smol_df)), size = smp_sz2)
+
+train.df <- smol_df[train_idx,]
+test.df <- smol_df[-train_idx,]
 
 myForest <- randomForest(status_bin ~ phasef + enrollment_level + has_dmc + allocation + startMonth + startYear + primary_purpose + intervention_model + intervention_type,
                          data = train.df, 
