@@ -527,39 +527,53 @@ frow4 <- fluidRow(
 
 ui <- dashboardPage(skin = "blue",
                     dashboardHeader(title = "Clinical Trials"),
-                    dashboardSidebar(),
+                    dashboardSidebar(
+                      checkboxGroupInput("checkGroup", 
+                                        h3("Years Shown"), 
+                                        choices = list(1980, 1981, 1982, 1983, 1984, 1985, 1986, 1987,
+                                                       1988, 1989, 1990, 1991, 1992, 1993, 1994, 1995,
+                                                       1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003,
+                                                       2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011,
+                                                       2012, 2013, 2014, 2015, 2016, 2017),
+                                        selected = c(1980, 1981, 1982, 1983, 1984, 1985, 1986, 1987,
+                                                     1988, 1989, 1990, 1991, 1992, 1993, 1994, 1995,
+                                                     1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003,
+                                                     2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011,
+                                                     2012, 2013, 2014, 2015, 2016, 2017))),
                     # combine the three fluid rows to make the body
                     dashboardBody(
                       frow1, #these are all defined above
                       frow2,
-                      frow3,
-                      frow4
+                      frow3
                     )
 )
 
 server <- function(input, output) {
+  current_data2 <- reactive({
+    subset(current_data, startYear %in% input$checkGroup)
+  })
   output$plot1 <- renderPlot({
-    ggplot(data = current_data) + geom_mosaic(aes(x = product(overall_status, intervention_model), fill = overall_status)) + 
+    ggplot(data = current_data2) + geom_mosaic(aes(x = product(overall_status, intervention_model), fill = overall_status)) + 
       labs(x = 'Intervention Model', y = 'Overall Status', fill = 'Overall Status') +
       theme(axis.text.x = element_text(angle = 45, hjust = 1))
   })
   output$plot2 <- renderPlot({
-    ggplot(data = current_data) + geom_mosaic(aes(x = product(overall_status, intervention_type), fill = overall_status)) + 
+    ggplot(data = current_data2) + geom_mosaic(aes(x = product(overall_status, intervention_type), fill = overall_status)) + 
       labs(x = 'Intervention Type', y = 'Overall Status', fill = 'Overall Status') +
       theme(axis.text.x = element_text(angle = 45, hjust = 1))
   })
   output$plot3 <- renderPlot({
-    ggplot(data = current_data, aes(x = enrollment_level, fill = overall_status)) + geom_bar(position = 'fill') + 
+    ggplot(data = current_data2, aes(x = enrollment_level, fill = overall_status)) + geom_bar(position = 'fill') + 
       facet_wrap(~phasef) + labs(x = 'Enrollment', y = 'Proportion', fill = 'Overall Status') + 
       theme(axis.text.x = element_text(angle = 45, hjust = 1))
   })
   output$plot4 <- renderPlot({
-    ggplot(data = current_data, aes(x = phase, color = phase, fill = phase)) +
+    ggplot(data = current_data2, aes(x = phase, color = phase, fill = phase)) +
       geom_bar() + facet_wrap(~overall_status, scales ='free') + 
       labs(x = 'Phase', y = 'Count')
   })
   output$plot5 <- renderPlot({
-    ggplot(data = current_data, aes(x = enrollment_level, fill = overall_status)) +
+    ggplot(data = current_data2, aes(x = enrollment_level, fill = overall_status)) +
       geom_bar(position = 'fill') + labs(x = 'Enrollment', y = 'Proportion', fill = 'Overall Status')
 })
 
