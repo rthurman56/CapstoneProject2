@@ -470,10 +470,101 @@ train.df <- smol_df[train_idx,]
 test.df <- smol_df[-train_idx,]
 
 myForest <- randomForest(status_bin ~ phasef + enrollment_level + has_dmc + allocation + startMonth + startYear + primary_purpose + intervention_model + intervention_type,
+
+myForest <- randomForest(status_bin ~ phasef + enrollment_level + has_dmc + allocation + startMonth 
+                         + startYear + primary_purpose + intervention_model + intervention_type + HeartHealth
+                         + TumorGrowth + Hepatitis.StemCell + Cancer + PostCare + BrainStudy + Diabetes.Types
+                         + DrugDosage + PhysiologicalEffects + TrialExecution,
+
                          data = train.df, 
                          type = "class", 
                          importance = TRUE)
 myForest
+
+TunedForest1 = randomForest(status_bin ~ phasef + enrollment_level + has_dmc + allocation + startMonth 
+                            + startYear + primary_purpose + intervention_model + intervention_type + HeartHealth
+                            + TumorGrowth + Hepatitis.StemCell + Cancer + PostCare + BrainStudy + Diabetes.Types
+                            + DrugDosage + PhysiologicalEffects + TrialExecution,
+                            data = train.df, 
+                            ntree = 500,
+                            mtry = 3,
+                            type = "class",
+                            importance = TRUE)
+TunedForest2 = randomForest(status_bin ~ phasef + enrollment_level + has_dmc + allocation + startMonth 
+                            + startYear + primary_purpose + intervention_model + intervention_type + HeartHealth
+                            + TumorGrowth + Hepatitis.StemCell + Cancer + PostCare + BrainStudy + Diabetes.Types
+                            + DrugDosage + PhysiologicalEffects + TrialExecution,
+                            data = train.df, 
+                            ntree = 500,
+                            mtry = 4,
+                            type = "class",
+                            importance = TRUE)
+TunedForest3 = randomForest(status_bin ~ phasef + enrollment_level + has_dmc + allocation + startMonth 
+                            + startYear + primary_purpose + intervention_model + intervention_type + HeartHealth
+                            + TumorGrowth + Hepatitis.StemCell + Cancer + PostCare + BrainStudy + Diabetes.Types
+                            + DrugDosage + PhysiologicalEffects + TrialExecution,
+                            data = train.df, 
+                            ntree = 500,
+                            mtry = 5,
+                            type = "class",
+                            importance = TRUE)
+TunedForest4 = randomForest(status_bin ~ phasef + enrollment_level + has_dmc + allocation + startMonth 
+                            + startYear + primary_purpose + intervention_model + intervention_type + HeartHealth
+                            + TumorGrowth + Hepatitis.StemCell + Cancer + PostCare + BrainStudy + Diabetes.Types
+                            + DrugDosage + PhysiologicalEffects + TrialExecution,
+                            data = train.df, 
+                            ntree = 750,
+                            mtry = 3,
+                            type = "class",
+                            importance = TRUE)
+TunedForest5 = randomForest(status_bin ~ phasef + enrollment_level + has_dmc + allocation + startMonth 
+                            + startYear + primary_purpose + intervention_model + intervention_type + HeartHealth
+                            + TumorGrowth + Hepatitis.StemCell + Cancer + PostCare + BrainStudy + Diabetes.Types
+                            + DrugDosage + PhysiologicalEffects + TrialExecution,
+                            data = train.df, 
+                            ntree = 750,
+                            mtry = 4,
+                            type = "class",
+                            importance = TRUE)
+TunedForest6 = randomForest(status_bin ~ phasef + enrollment_level + has_dmc + allocation + startMonth 
+                            + startYear + primary_purpose + intervention_model + intervention_type + HeartHealth
+                            + TumorGrowth + Hepatitis.StemCell + Cancer + PostCare + BrainStudy + Diabetes.Types
+                            + DrugDosage + PhysiologicalEffects + TrialExecution,
+                            data = train.df, 
+                            ntree = 750,
+                            mtry = 5,
+                            type = "class",
+                            importance = TRUE)
+TunedForest7 = randomForest(status_bin ~ phasef + enrollment_level + has_dmc + allocation + startMonth 
+                            + startYear + primary_purpose + intervention_model + intervention_type + HeartHealth
+                            + TumorGrowth + Hepatitis.StemCell + Cancer + PostCare + BrainStudy + Diabetes.Types
+                            + DrugDosage + PhysiologicalEffects + TrialExecution,
+                            data = train.df, 
+                            ntree = 1000,
+                            mtry = 3,
+                            type = "class",
+                            importance = TRUE)
+TunedForest8 = randomForest(status_bin ~ phasef + enrollment_level + has_dmc + allocation + startMonth 
+                            + startYear + primary_purpose + intervention_model + intervention_type + HeartHealth
+                            + TumorGrowth + Hepatitis.StemCell + Cancer + PostCare + BrainStudy + Diabetes.Types
+                            + DrugDosage + PhysiologicalEffects + TrialExecution,
+                            data = train.df, 
+                            ntree = 1000,
+                            mtry = 4,
+                            type = "class",
+                            importance = TRUE)
+TunedForest9 = randomForest(status_bin ~ phasef + enrollment_level + has_dmc + allocation + startMonth 
+                            + startYear + primary_purpose + intervention_model + intervention_type + HeartHealth
+                            + TumorGrowth + Hepatitis.StemCell + Cancer + PostCare + BrainStudy + Diabetes.Types
+                            + DrugDosage + PhysiologicalEffects + TrialExecution,
+                            data = train.df, 
+                            ntree = 1000,
+                            mtry = 5,
+                            type = "class",
+                            importance = TRUE)
+
+
+
 
 ####################
 ## DASHBOARD TIME ##
