@@ -469,8 +469,6 @@ train_idx <- sample(seq_len(nrow(smol_df)), size = smp_sz2)
 train.df <- smol_df[train_idx,]
 test.df <- smol_df[-train_idx,]
 
-myForest <- randomForest(status_bin ~ phasef + enrollment_level + has_dmc + allocation + startMonth + startYear + primary_purpose + intervention_model + intervention_type,
-
 myForest <- randomForest(status_bin ~ phasef + enrollment_level + has_dmc + allocation + startMonth 
                          + startYear + primary_purpose + intervention_model + intervention_type + HeartHealth
                          + TumorGrowth + Hepatitis.StemCell + Cancer + PostCare + BrainStudy + Diabetes.Types
