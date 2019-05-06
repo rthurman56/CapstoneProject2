@@ -477,7 +477,7 @@ test.df <- smol_df[-train_idx,]
 
 myForest <- randomForest(status_bin ~ phasef + enrollment_level + has_dmc + allocation + startMonth 
                          + startYear + primary_purpose + intervention_model + intervention_type + HeartHealth
-                         + TumorGrowth + Hepatitis.StemCell + Cancer + PostCare + BrainStudy + DiabetesTypes
+                         + TumorGrowth + Hepatitis.StemCell + Cancer + PostCare + BrainStudy + Diabetes.Types
                          + DrugDosage + PhysiologicalEffects + TrialExecution,
                          data = train.df, 
                          type = "class", 
@@ -522,7 +522,7 @@ TunedForest4 = randomForest(status_bin ~ phasef + enrollment_level + has_dmc + a
                             importance = TRUE)
 TunedForest5 = randomForest(status_bin ~ phasef + enrollment_level + has_dmc + allocation + startMonth 
                             + startYear + primary_purpose + intervention_model + intervention_type + HeartHealth
-                            + TumorGrowth + Hepatitis.StemCell + Cancer + PostCare + BrainStudy + DiabetesTypes
+                            + TumorGrowth + Hepatitis.StemCell + Cancer + PostCare + BrainStudy + Diabetes.Types
                             + DrugDosage + PhysiologicalEffects + TrialExecution,
                             data = train.df, 
                             ntree = 750,
