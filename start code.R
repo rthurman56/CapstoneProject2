@@ -480,6 +480,7 @@ myForest <- randomForest(status_bin ~ phasef + enrollment_level + has_dmc + allo
                          type = "class", 
                          importance = TRUE)
 myForest
+#OOB rate: 9.76%
 
 TunedForest1 = randomForest(status_bin ~ phasef + enrollment_level + has_dmc + allocation + startMonth 
                             + startYear + primary_purpose + intervention_model + intervention_type + HeartHealth
@@ -490,6 +491,7 @@ TunedForest1 = randomForest(status_bin ~ phasef + enrollment_level + has_dmc + a
                             mtry = 3,
                             type = "class",
                             importance = TRUE)
+#OOB rate: 9.71% BEST MODEL ^^^^^
 TunedForest2 = randomForest(status_bin ~ phasef + enrollment_level + has_dmc + allocation + startMonth 
                             + startYear + primary_purpose + intervention_model + intervention_type + HeartHealth
                             + TumorGrowth + Hepatitis.StemCell + Cancer + PostCare + BrainStudy + Diabetes.Types
@@ -499,6 +501,7 @@ TunedForest2 = randomForest(status_bin ~ phasef + enrollment_level + has_dmc + a
                             mtry = 4,
                             type = "class",
                             importance = TRUE)
+#OOB rate: 9.76%
 TunedForest3 = randomForest(status_bin ~ phasef + enrollment_level + has_dmc + allocation + startMonth 
                             + startYear + primary_purpose + intervention_model + intervention_type + HeartHealth
                             + TumorGrowth + Hepatitis.StemCell + Cancer + PostCare + BrainStudy + Diabetes.Types
@@ -508,6 +511,7 @@ TunedForest3 = randomForest(status_bin ~ phasef + enrollment_level + has_dmc + a
                             mtry = 5,
                             type = "class",
                             importance = TRUE)
+#OOB rate: 9.76%
 TunedForest4 = randomForest(status_bin ~ phasef + enrollment_level + has_dmc + allocation + startMonth 
                             + startYear + primary_purpose + intervention_model + intervention_type + HeartHealth
                             + TumorGrowth + Hepatitis.StemCell + Cancer + PostCare + BrainStudy + Diabetes.Types
@@ -517,6 +521,7 @@ TunedForest4 = randomForest(status_bin ~ phasef + enrollment_level + has_dmc + a
                             mtry = 3,
                             type = "class",
                             importance = TRUE)
+#OOB rate: 9.74%
 TunedForest5 = randomForest(status_bin ~ phasef + enrollment_level + has_dmc + allocation + startMonth 
                             + startYear + primary_purpose + intervention_model + intervention_type + HeartHealth
                             + TumorGrowth + Hepatitis.StemCell + Cancer + PostCare + BrainStudy + Diabetes.Types
@@ -526,6 +531,7 @@ TunedForest5 = randomForest(status_bin ~ phasef + enrollment_level + has_dmc + a
                             mtry = 4,
                             type = "class",
                             importance = TRUE)
+#OOB rate: 9.95%
 TunedForest6 = randomForest(status_bin ~ phasef + enrollment_level + has_dmc + allocation + startMonth 
                             + startYear + primary_purpose + intervention_model + intervention_type + HeartHealth
                             + TumorGrowth + Hepatitis.StemCell + Cancer + PostCare + BrainStudy + Diabetes.Types
@@ -535,6 +541,7 @@ TunedForest6 = randomForest(status_bin ~ phasef + enrollment_level + has_dmc + a
                             mtry = 5,
                             type = "class",
                             importance = TRUE)
+#OOB rate: 9.95%
 TunedForest7 = randomForest(status_bin ~ phasef + enrollment_level + has_dmc + allocation + startMonth 
                             + startYear + primary_purpose + intervention_model + intervention_type + HeartHealth
                             + TumorGrowth + Hepatitis.StemCell + Cancer + PostCare + BrainStudy + Diabetes.Types
@@ -544,6 +551,7 @@ TunedForest7 = randomForest(status_bin ~ phasef + enrollment_level + has_dmc + a
                             mtry = 3,
                             type = "class",
                             importance = TRUE)
+#OOB rate: 9.92%
 TunedForest8 = randomForest(status_bin ~ phasef + enrollment_level + has_dmc + allocation + startMonth 
                             + startYear + primary_purpose + intervention_model + intervention_type + HeartHealth
                             + TumorGrowth + Hepatitis.StemCell + Cancer + PostCare + BrainStudy + Diabetes.Types
@@ -553,6 +561,7 @@ TunedForest8 = randomForest(status_bin ~ phasef + enrollment_level + has_dmc + a
                             mtry = 4,
                             type = "class",
                             importance = TRUE)
+#OOB rate: 9.97%
 TunedForest9 = randomForest(status_bin ~ phasef + enrollment_level + has_dmc + allocation + startMonth 
                             + startYear + primary_purpose + intervention_model + intervention_type + HeartHealth
                             + TumorGrowth + Hepatitis.StemCell + Cancer + PostCare + BrainStudy + Diabetes.Types
@@ -562,9 +571,18 @@ TunedForest9 = randomForest(status_bin ~ phasef + enrollment_level + has_dmc + a
                             mtry = 5,
                             type = "class",
                             importance = TRUE)
+#OOB rate: 9.95%
 
+TunedForest10 = randomForest(status_bin ~ phasef + enrollment_level + intervention_type + HeartHealth
+                            + TumorGrowth + Hepatitis.StemCell + Cancer + PostCare + BrainStudy + Diabetes.Types
+                            + DrugDosage + PhysiologicalEffects + TrialExecution,
+                            data = train.df, 
+                            ntree = 500,
+                            mtry = 3,
+                            type = "class",
+                            importance = TRUE)
 
-
+#OOB rate: 10.23%
 
 ####################
 ## DASHBOARD TIME ##
