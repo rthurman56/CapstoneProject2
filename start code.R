@@ -675,7 +675,7 @@ server <- function(input, output) {
       geom_bar(position = 'fill') + labs(x = 'Enrollment', y = 'Proportion', fill = 'Overall Status')
   })
   output$plot6 <- renderPlot({
-    ggplot(aes(term, beta, fill = factor(topic))) + geom_col(show.legend = FALSE) +
+    ggplot(data = top_terms, aes(term, beta, fill = factor(topic))) + geom_col(show.legend = FALSE) +
       facet_wrap(~ topic, scales = "free") + coord_flip() +
       theme(axis.text.x = element_text(angle = 45, hjust = 1))
     
