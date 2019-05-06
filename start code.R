@@ -438,9 +438,12 @@ colnames(documents_w) <- c("nct_id", "HeartHealth", "TumorGrowth", "Hepatitis/St
 lab_lda <- merge(documents_w, current_data, by="nct_id", all = T)
 str(lab_lda)
 
-
+#write files to csv for a speedy process
+lab_lda <- write.csv(lab_lda, choose.files())
+top_terms <- write.csv(top_terms, choose.files())
 ### wrote file to csv, will now read it in from local computer
 lab_lda <- read.csv(file.choose(), header = T)
+top_terms <- read.csv(file.choose(), header = T)
 
 ###########################
 ## THIS FOREST IS RANDOM ##
