@@ -448,18 +448,13 @@ lab_lda <- read.csv(file.choose(), header = T)
 ###########################
 
 #merge lab_lda with current_data to make one for random forest use
-lab_lda = lab_lda[,-c(1, 13:28)]
 data_lda <- merge(current_data, lab_lda, by = 'nct_id', all.x = T, all.y = T)
-
 
 data_lda$allocation <- as.factor(data_lda$allocation)
 data_lda$has_dmc <- as.factor(data_lda$has_dmc)
 data_lda$primary_purpose <- as.factor(data_lda$primary_purpose)
 data_lda$intervention_model <- as.factor(data_lda$intervention_model)
 data_lda$intervention_type <- as.factor(data_lda$intervention_type)
-data_lda$status_bin = as.factor(data_lda$status_bin)
-
-
 
 smp_sz <- floor(nrow(data_lda)*.4)
 
@@ -474,11 +469,13 @@ train_idx <- sample(seq_len(nrow(smol_df)), size = smp_sz2)
 train.df <- smol_df[train_idx,]
 test.df <- smol_df[-train_idx,]
 
+myForest <- randomForest(status_bin ~ phasef + enrollment_level + has_dmc + allocation + startMonth + startYear + primary_purpose + intervention_model + intervention_type,
 
 myForest <- randomForest(status_bin ~ phasef + enrollment_level + has_dmc + allocation + startMonth 
                          + startYear + primary_purpose + intervention_model + intervention_type + HeartHealth
                          + TumorGrowth + Hepatitis.StemCell + Cancer + PostCare + BrainStudy + Diabetes.Types
                          + DrugDosage + PhysiologicalEffects + TrialExecution,
+
                          data = train.df, 
                          type = "class", 
                          importance = TRUE)
@@ -627,26 +624,26 @@ frow3 <- fluidRow(
 )
 
 #choose image file
-outputID <- choose.files()  
+#outputID <- choose.files()  
 
-frow4 <- fluidRow(
-  box(title = "LDA Topics"
-      ,solidHeader = TRUE 
-      ,collapsible = TRUE
-      ,width = 12
-      ,imageOutput(outputID, width = "100%", height = "400px", inline = FALSE))
-)
+#frow4 <- fluidRow(
+ # box(title = "LDA Topics"
+  #    ,solidHeader = TRUE 
+   #   ,collapsible = TRUE
+    #  ,width = 12
+     # ,imageOutput(outputID, width = "100%", height = "400px", inline = FALSE))
+#)
 
 
 ui <- dashboardPage(skin = "blue",
                     dashboardHeader(title = "Clinical Trials"),
                     dashboardSidebar(
-                      sliderInput("range", "Years:",
-                                  min = 1980, max = 2017,
-                                  value = c(2016,2017), 
-                                  step = 1, 
-                                  round = TRUE,
-                                  dragRange = TRUE),
+                      sidebarPanel(
+                        # Input: Specification of range within an interval ----
+                        sliderInput("range", "Year:",
+                                    min = 1980, max = 2017,
+                                    value = c(2000,2010))
+                      ),
                     # combine the three fluid rows to make the body
                     dashboardBody(
                       frow1, #these are all defined above
@@ -656,7 +653,7 @@ ui <- dashboardPage(skin = "blue",
 
 server <- function(input, output) {
   current_data2 <- reactive({
-    subset(current_data, startYear %in% input$range)
+    subset(current_data, startYear %in% as.character(paste(input$range, collapse = " ")))
   })
   output$plot1 <- renderPlot({
     ggplot(data = current_data2) + geom_mosaic(aes(x = product(overall_status, intervention_model), fill = overall_status)) + 
