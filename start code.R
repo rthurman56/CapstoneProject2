@@ -582,6 +582,17 @@ TunedForest10 = randomForest(status_bin ~ phasef + enrollment_level + interventi
 
 #OOB rate: 10.23%
 
+
+#########################
+## LOGISTIC REGRESSION ##
+#########################
+data_lda <- na.omit(data_lda)
+model1 <- glm(status_bin ~ phasef + enrollment_level + intervention_type + HeartHealth
+              + TumorGrowth + Hepatitis.StemCell + Cancer + PostCare + BrainStudy + Diabetes.Types
+              + DrugDosage + PhysiologicalEffects + TrialExecution, data = data_lda, family = binomial(link = logit))
+
+summary(model1)
+
 ####################
 ## DASHBOARD TIME ##
 ####################
