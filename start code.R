@@ -442,7 +442,6 @@ str(lab_lda)
 ### wrote file to csv, will now read it in from local computer
 lab_lda <- read.csv(file.choose(), header = T)
 
-
 ###########################
 ## THIS FOREST IS RANDOM ##
 ###########################
@@ -608,6 +607,14 @@ frow3 <- fluidRow(
       ,plotOutput("plot5", height = 250)) 
 )
 
+frow4 <- fluidRow(
+  box(title = 'LDA'
+      ,solidHeader = TRUE
+      ,collapsible = TRUE
+      ,width = 12
+      ,plotOutput('plot6', height = 250))
+)
+
 # #choose image file
 # outputID <- choose.files()
 # 
@@ -632,7 +639,8 @@ ui <- dashboardPage(skin = "blue",
                     dashboardBody(
                       frow1, #these are all defined above
                       frow2,
-                      frow3
+                      frow3,
+                      frow4
                     ))
 
 server <- function(input, output) {
@@ -663,6 +671,13 @@ server <- function(input, output) {
     ggplot(data = current_data2, aes(x = enrollment_level, fill = overall_status)) +
       geom_bar(position = 'fill') + labs(x = 'Enrollment', y = 'Proportion', fill = 'Overall Status')
   })
+  output$plot6 <- renderPlot({
+    ggplot(aes(term, beta, fill = factor(topic))) + geom_col(show.legend = FALSE) +
+      facet_wrap(~ topic, scales = "free") + coord_flip() +
+      theme(axis.text.x = element_text(angle = 45, hjust = 1))
+    
+  })
+  
   
 }
 
