@@ -302,6 +302,7 @@ one_tokens_tf_idf <- tokens_tf_idf
 ######################
 #two word text mining#
 ######################
+
 tokens <- current_data %>% unnest_tokens(word, description, token = "ngrams", n= 2)
 #see first few rows - note reach row is now a single description (token)
 head(tokens)
@@ -411,6 +412,9 @@ dtm <- tokens_count %>%
 lda <- LDA(dtm, k = 10, control = list(seed = 1234))
 
 topics <- tidy(lda, matrix = "beta")
+# write csv ^ here
+
+
 #get a small data frame of the top 10 descriptions for each topic
 top_terms <- topics %>%
   group_by(topic) %>%
@@ -618,6 +622,29 @@ frow4 <- fluidRow(
       ,plotOutput('plot6', height = 250))
 )
 
+
+#create a checkbox object that we will end up putting in dashboardSidebar
+checkboxes <- checkboxGroupInput("checkGroup", 
+                                 h3("Enrollment Level:"), 
+                                 choices = list("0-21" , 
+                                                "22-43" , 
+                                                "44-80" ,
+                                                "81-199" ,
+                                                "200-999" ,
+                                                "1000+"),
+                                 selected = c("(-1,21]" , 
+                                              "(21,43]" , 
+                                              "(43,80]" ,
+                                              "(80,199]" ,
+                                              "(199-999]" ,
+                                              "(999,6.71e+07]" ))
+#create a menu object that we will end up putting in dashboardSidebar
+menus <-  sidebarMenu(
+  menuItem("Main Dashboard", tabName = "dashboard", icon = icon("dashboard")), #see tabItem below
+  menuItem("Enrollment Level Plots", tabName = "dashboard", icon = icon("dashboard")) #see tabItem below
+)
+
+
 # #choose image file
 # outputID <- choose.files()
 # 
@@ -633,23 +660,30 @@ frow4 <- fluidRow(
 ui <- dashboardPage(skin = "blue",
                     dashboardHeader(title = "Clinical Trials"),
                     dashboardSidebar(
-                      
-                      sliderInput("slider", label = h3("Year"), min = 1980, 
-                                  max = 2017, value = c(1990, 2000))
+                      checkboxes,
+                      menus
                     ),
                     
                     # combine the three fluid rows to make the body
                     dashboardBody(
-                      frow1, #these are all defined above
-                      frow2,
-                      frow3,
-                      frow4
-                    ))
+                      tabItems(
+                        tabItem(tabName = "Main Dashboard",
+                                h2("dashboard tab content"),
+                                frow1, 
+                                frow2,
+                                frow3
+                                ),
+                        tabItem(tabName = "Enrollment Plots",
+                                h2("more detailed info"),
+                                frow3
+                                #frow4
+                                )
+                    )))
 
 server <- function(input, output) {
-  # You can access the values of the second widget with input$slider2, e.g.
-  output$range <- renderPrint({ input$slider })
-  
+    current_data2 <- reactive({
+      subset(current_data, enrollment_level %in% input$checkGroup)
+    })
   output$plot1 <- renderPlot({
     ggplot(data = current_data2) + geom_mosaic(aes(x = product(overall_status, intervention_model), fill = overall_status)) + 
       labs(x = 'Intervention Model', y = 'Overall Status', fill = 'Overall Status') +
@@ -674,12 +708,12 @@ server <- function(input, output) {
     ggplot(data = current_data2, aes(x = enrollment_level, fill = overall_status)) +
       geom_bar(position = 'fill') + labs(x = 'Enrollment', y = 'Proportion', fill = 'Overall Status')
   })
-  output$plot6 <- renderPlot({
-    ggplot(data = top_terms, aes(term, beta, fill = factor(topic))) + geom_col(show.legend = FALSE) +
-      facet_wrap(~ topic, scales = "free") + coord_flip() +
-      theme(axis.text.x = element_text(angle = 45, hjust = 1))
-    
-  })
+  # output$plot6 <- renderPlot({
+  #   ggplot(data = top_terms, aes(term, beta, fill = factor(topic))) + geom_col(show.legend = FALSE) +
+  #     facet_wrap(~ topic, scales = "free") + coord_flip() +
+  #     theme(axis.text.x = element_text(angle = 45, hjust = 1))
+  #   
+  # })
   
   
 }
