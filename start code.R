@@ -587,11 +587,22 @@ TunedForest10 = randomForest(status_bin ~ phasef + enrollment_level + interventi
 ## LOGISTIC REGRESSION ##
 #########################
 data_lda <- na.omit(data_lda)
+
+#Make the "Drug" level the reference level since it is the most prominent
+data_lda$intervention_type <- relevel(data_lda$intervention_type, ref = 7)
+data_lda$phasef <- relevel(data_lda$phasef, ref = 4)
+
 model1 <- glm(status_bin ~ phasef + enrollment_level + intervention_type + HeartHealth
               + TumorGrowth + Hepatitis.StemCell + Cancer + PostCare + BrainStudy + Diabetes.Types
               + DrugDosage + PhysiologicalEffects + TrialExecution, data = data_lda, family = binomial(link = logit))
 
 summary(model1)
+
+#exponentiate coefficients for interpretations
+round(exp(coef(model1)), 3)
+
+#heart health: cardiovascular health (CV) Hypertension (HTN)
+#Hepatitis.StemCell: Hepatitis.  These two don't have anything to do with one another.
 
 ####################
 ## DASHBOARD TIME ##
