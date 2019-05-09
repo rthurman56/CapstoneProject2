@@ -13,10 +13,10 @@ library(rpart) #classification trees
 library(rpart.plot) #plotting trees
 
 #read data in
-brief_summaries=read.csv(file.choose(), header = TRUE)
-designs=read.csv(file.choose(),header = TRUE)
-interventions=read.csv(file.choose(), header = TRUE)
-studies=read.csv(file.choose(), header = TRUE)
+brief_summaries <- read.csv("./data/brief_summaries.csv", header = TRUE)
+designs <- read.csv("./data/designs.csv",header = TRUE)
+interventions <- read.csv("./data/interventions.csv", header = TRUE)
+studies <- read.csv("./data/studies.csv", header = TRUE)
 
 
 str(brief_summaries)
