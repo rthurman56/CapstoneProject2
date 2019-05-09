@@ -614,13 +614,13 @@ frow3 <- fluidRow(
       ,plotOutput("plot5", height = 250)) 
 )
 
-frow4 <- fluidRow(
-  box(title = 'LDA'
-      ,solidHeader = TRUE
-      ,collapsible = TRUE
-      ,width = 12
-      ,plotOutput('plot6', height = 250))
-)
+# frow4 <- fluidRow(
+#   box(title = 'LDA'
+#       ,solidHeader = TRUE
+#       ,collapsible = TRUE
+#       ,width = 12
+#       ,plotOutput('plot6', height = 250))
+# )
 
 
 #create a checkbox object that we will end up putting in dashboardSidebar
@@ -638,6 +638,7 @@ checkboxes <- checkboxGroupInput("checkGroup",
                                               "(80,199]" ,
                                               "(199-999]" ,
                                               "(999,6.71e+07]" ))
+
 #create a menu object that we will end up putting in dashboardSidebar
 menus <-  sidebarMenu(
   menuItem("Main Dashboard", tabName = "dashboard", icon = icon("dashboard")), #see tabItem below
@@ -685,23 +686,23 @@ server <- function(input, output) {
       subset(current_data, enrollment_level %in% input$checkGroup)
     })
   output$plot1 <- renderPlot({
-    ggplot(data = current_data2) + geom_mosaic(aes(x = product(overall_status, intervention_model), fill = overall_status)) + 
+    ggplot(data = current_data2) + geom_mosaic(aes(x = product(overall_status, intervention_model), fill = overall_status)) +
       labs(x = 'Intervention Model', y = 'Overall Status', fill = 'Overall Status') +
       theme(axis.text.x = element_text(angle = 45, hjust = 1))
   })
   output$plot2 <- renderPlot({
-    ggplot(data = current_data2) + geom_mosaic(aes(x = product(overall_status, intervention_type), fill = overall_status)) + 
+    ggplot(data = current_data2) + geom_mosaic(aes(x = product(overall_status, intervention_type), fill = overall_status)) +
       labs(x = 'Intervention Type', y = 'Overall Status', fill = 'Overall Status') +
       theme(axis.text.x = element_text(angle = 45, hjust = 1))
   })
   output$plot3 <- renderPlot({
-    ggplot(data = current_data2, aes(x = enrollment_level, fill = overall_status)) + geom_bar(position = 'fill') + 
-      facet_wrap(~phasef) + labs(x = 'Enrollment', y = 'Proportion', fill = 'Overall Status') + 
+    ggplot(data = current_data2, aes(x = enrollment_level, fill = overall_status)) + geom_bar(position = 'fill') +
+      facet_wrap(~phasef) + labs(x = 'Enrollment', y = 'Proportion', fill = 'Overall Status') +
       theme(axis.text.x = element_text(angle = 45, hjust = 1))
   })
   output$plot4 <- renderPlot({
     ggplot(data = current_data2, aes(x = phase, color = phase, fill = phase)) +
-      geom_bar() + facet_wrap(~overall_status, scales ='free') + 
+      geom_bar() + facet_wrap(~overall_status, scales ='free') +
       labs(x = 'Phase', y = 'Count')
   })
   output$plot5 <- renderPlot({
@@ -712,11 +713,8 @@ server <- function(input, output) {
   #   ggplot(data = top_terms, aes(term, beta, fill = factor(topic))) + geom_col(show.legend = FALSE) +
   #     facet_wrap(~ topic, scales = "free") + coord_flip() +
   #     theme(axis.text.x = element_text(angle = 45, hjust = 1))
-  #   
+  #
   # })
-  
-  
 }
-
 shinyApp(ui, server)
 
