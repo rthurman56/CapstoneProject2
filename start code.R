@@ -8,9 +8,8 @@ library(reshape2) #for reshaping data (long to wide or wide to long)
 library(shinydashboard) #dashboard
 library(shiny) #dashboard
 library(randomForest) #random forest algorithm
-library(caret) #classification trees
-library(rpart) #classification trees
-library(rpart.plot) #plotting trees
+
+setwd("/Desktop/CapstoneProject2")
 
 #read data in
 brief_summaries <- read.csv("./data/brief_summaries.csv", header = TRUE)
@@ -18,12 +17,10 @@ designs <- read.csv("./data/designs.csv",header = TRUE)
 interventions <- read.csv("./data/interventions.csv", header = TRUE)
 studies <- read.csv("./data/studies.csv", header = TRUE)
 
-
 str(brief_summaries)
 str(designs)
 str(interventions)
 str(studies)
-
 
 ##############################
 ## DATA CLEANING AND MERGES ##
