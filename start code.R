@@ -578,12 +578,6 @@ TunedForest9 = randomForest(status_bin ~ phasef + enrollment_level + has_dmc + a
 ####################
 ## DASHBOARD TIME ##
 ####################
-
-
-########################
-# dashboard that works #
-########################
-
 frow1 <- fluidRow(
   box(title = "Intervention Models and Overall Status"
       ,solidHeader = TRUE 
