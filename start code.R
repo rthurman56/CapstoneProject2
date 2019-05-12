@@ -639,25 +639,25 @@ menus <-  sidebarMenu(
   menuItem("Enrollment Level Plots", tabName = "enrollmentplots", icon = icon("dashboard")) #see tabItem below
 )
 
-# checkboxes <- checkboxGroupInput("checkGroup", 
-#                                  h3("Enrollment Level:"), 
-#                                  choices = list("0-21" , 
-#                                                 "22-43" , 
-#                                                 "44-80" ,
-#                                                 "81-199" ,
-#                                                 "200-999" ,
-#                                                 "1000+"),
-#                                  selected = c("(-1,21]" , 
-#                                               "(21,43]" , 
-#                                               "(43,80]" ,
-#                                               "(80,199]" ,
-#                                               "(199-999]" ,
-#                                               "(999,6.71e+07]" ))
+checkboxes <- checkboxGroupInput("checkGroup",
+                                 h3("Enrollment Level:"),
+                                 choices = list("0-21" ,
+                                                "22-43" ,
+                                                "44-80" ,
+                                                "81-199" ,
+                                                "200-999" ,
+                                                "1000+"),
+                                 selected = c("(-1,21]" ,
+                                              "(21,43]" ,
+                                              "(43,80]" ,
+                                              "(80,199]" ,
+                                              "(199-999]" ,
+                                              "(999,6.71e+07]" ))
 
 ui <- dashboardPage(skin = "blue",
                     dashboardHeader(title = "Clinical Trials"),
                     dashboardSidebar(
-                      #checkboxes,
+                      checkboxes,
                       menus),
                     dashboardBody(
                       tabItems(
@@ -674,9 +674,10 @@ ui <- dashboardPage(skin = "blue",
 
 
 server <- function(input, output) {
-  # data2 <- reactive({
-  #   current_data
-  # })
+  # current_data2 <- reactive({
+  # subset(current_data, enrollment_level %in% input$checkGroup)
+  # }) 
+  # if we get this working, then we should use current_data2() as the data for each plot in the server
   output$plot1 <- renderPlot({
     ggplot(data = current_data) + geom_mosaic(aes(x = product(overall_status, intervention_model), fill = overall_status)) + 
       labs(x = 'Intervention Model', y = 'Overall Status', fill = 'Overall Status') +
