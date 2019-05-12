@@ -579,6 +579,11 @@ TunedForest9 = randomForest(status_bin ~ phasef + enrollment_level + has_dmc + a
 ## DASHBOARD TIME ##
 ####################
 
+
+########################
+# dashboard that works #
+########################
+
 frow1 <- fluidRow(
   box(title = "Intervention Models and Overall Status"
       ,solidHeader = TRUE 
@@ -614,6 +619,18 @@ frow3 <- fluidRow(
       ,plotOutput("plot5", height = 250)) 
 )
 
+#choose image file
+#outputID <- choose.files()  
+
+#frow4 <- fluidRow(
+# box(title = "LDA Topics"
+#    ,solidHeader = TRUE 
+#   ,collapsible = TRUE
+#  ,width = 12
+# ,imageOutput(outputID, width = "100%", height = "400px", inline = FALSE))
+#)
+
+
 # frow4 <- fluidRow(
 #   box(title = 'LDA'
 #       ,solidHeader = TRUE
@@ -623,98 +640,77 @@ frow3 <- fluidRow(
 # )
 
 
-#create a checkbox object that we will end up putting in dashboardSidebar
-checkboxes <- checkboxGroupInput("checkGroup", 
-                                 h3("Enrollment Level:"), 
-                                 choices = list("0-21" , 
-                                                "22-43" , 
-                                                "44-80" ,
-                                                "81-199" ,
-                                                "200-999" ,
-                                                "1000+"),
-                                 selected = c("(-1,21]" , 
-                                              "(21,43]" , 
-                                              "(43,80]" ,
-                                              "(80,199]" ,
-                                              "(199-999]" ,
-                                              "(999,6.71e+07]" ))
-
-#create a menu object that we will end up putting in dashboardSidebar
 menus <-  sidebarMenu(
   menuItem("Main Dashboard", tabName = "dashboard", icon = icon("dashboard")), #see tabItem below
-  menuItem("Enrollment Level Plots", tabName = "dashboard", icon = icon("dashboard")) #see tabItem below
+  menuItem("Enrollment Level Plots", tabName = "enrollmentplots", icon = icon("dashboard")) #see tabItem below
 )
 
-
-# #choose image file
-# outputID <- choose.files()
-# 
-# frow4 <- fluidRow(
-#   box(title = "LDA Topics"
-#       ,solidHeader = TRUE
-#       ,collapsible = TRUE
-#       ,width = 12
-#       ,imageOutput(outputID, width = "100%", height = "400px", inline = FALSE))
-# )
-
+# checkboxes <- checkboxGroupInput("checkGroup", 
+#                                  h3("Enrollment Level:"), 
+#                                  choices = list("0-21" , 
+#                                                 "22-43" , 
+#                                                 "44-80" ,
+#                                                 "81-199" ,
+#                                                 "200-999" ,
+#                                                 "1000+"),
+#                                  selected = c("(-1,21]" , 
+#                                               "(21,43]" , 
+#                                               "(43,80]" ,
+#                                               "(80,199]" ,
+#                                               "(199-999]" ,
+#                                               "(999,6.71e+07]" ))
 
 ui <- dashboardPage(skin = "blue",
                     dashboardHeader(title = "Clinical Trials"),
                     dashboardSidebar(
-                      checkboxes,
-                      menus
-                    ),
-                    
-                    # combine the three fluid rows to make the body
+                      #checkboxes,
+                      menus),
                     dashboardBody(
                       tabItems(
-                        tabItem(tabName = "Main Dashboard",
+                        tabItem(tabName = "dashboard",
                                 h2("dashboard tab content"),
                                 frow1, 
-                                frow2,
-                                frow3
-                                ),
-                        tabItem(tabName = "Enrollment Plots",
+                                frow2
+                        ),
+                        tabItem(tabName = "enrollmentplots",
                                 h2("more detailed info"),
                                 frow3
                                 #frow4
-                                )
-                    )))
+                        ))))
+
 
 server <- function(input, output) {
-    current_data2 <- reactive({
-      subset(current_data, enrollment_level %in% input$checkGroup)
-    })
+  # data2 <- reactive({
+  #   current_data
+  # })
   output$plot1 <- renderPlot({
-    ggplot(data = current_data2) + geom_mosaic(aes(x = product(overall_status, intervention_model), fill = overall_status)) +
+    ggplot(data = current_data) + geom_mosaic(aes(x = product(overall_status, intervention_model), fill = overall_status)) + 
       labs(x = 'Intervention Model', y = 'Overall Status', fill = 'Overall Status') +
       theme(axis.text.x = element_text(angle = 45, hjust = 1))
   })
   output$plot2 <- renderPlot({
-    ggplot(data = current_data2) + geom_mosaic(aes(x = product(overall_status, intervention_type), fill = overall_status)) +
+    ggplot(data = current_data) + geom_mosaic(aes(x = product(overall_status, intervention_type), fill = overall_status)) + 
       labs(x = 'Intervention Type', y = 'Overall Status', fill = 'Overall Status') +
       theme(axis.text.x = element_text(angle = 45, hjust = 1))
   })
   output$plot3 <- renderPlot({
-    ggplot(data = current_data2, aes(x = enrollment_level, fill = overall_status)) + geom_bar(position = 'fill') +
-      facet_wrap(~phasef) + labs(x = 'Enrollment', y = 'Proportion', fill = 'Overall Status') +
+    ggplot(data = current_data, aes(x = enrollment_level, fill = overall_status)) + geom_bar(position = 'fill') + 
+      facet_wrap(~phasef) + labs(x = 'Enrollment', y = 'Proportion', fill = 'Overall Status') + 
       theme(axis.text.x = element_text(angle = 45, hjust = 1))
   })
   output$plot4 <- renderPlot({
-    ggplot(data = current_data2, aes(x = phase, color = phase, fill = phase)) +
-      geom_bar() + facet_wrap(~overall_status, scales ='free') +
+    ggplot(data = current_data, aes(x = phase, color = phase, fill = phase)) +
+      geom_bar() + facet_wrap(~overall_status, scales ='free') + 
       labs(x = 'Phase', y = 'Count')
   })
   output$plot5 <- renderPlot({
-    ggplot(data = current_data2, aes(x = enrollment_level, fill = overall_status)) +
+    ggplot(data = current_data, aes(x = enrollment_level, fill = overall_status)) +
       geom_bar(position = 'fill') + labs(x = 'Enrollment', y = 'Proportion', fill = 'Overall Status')
   })
-  # output$plot6 <- renderPlot({
-  #   ggplot(data = top_terms, aes(term, beta, fill = factor(topic))) + geom_col(show.legend = FALSE) +
-  #     facet_wrap(~ topic, scales = "free") + coord_flip() +
-  #     theme(axis.text.x = element_text(angle = 45, hjust = 1))
-  #
-  # })
+  
 }
+
+
+
 shinyApp(ui, server)
 
