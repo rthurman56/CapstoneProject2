@@ -448,7 +448,10 @@ lab_lda <- read.csv(file.choose(), header = T)
 ###########################
 
 #merge lab_lda with current_data to make one for random forest use
+one_word_lda= read.csv(choose.files(), header=TRUE)
+one_word_lda= subset(one_word_lda[-c(1,13:29)])
 data_lda <- merge(current_data, lab_lda, by = 'nct_id', all.x = T, all.y = T)
+data_lda = merge(data_lda, one_word_lda, by = 'nct_id', all.x = T, all.y = T)
 
 data_lda$allocation <- as.factor(data_lda$allocation)
 data_lda$has_dmc <- as.factor(data_lda$has_dmc)
@@ -582,24 +585,68 @@ TunedForest10 = randomForest(status_bin ~ phasef + enrollment_level + interventi
 
 #OOB rate: 10.23%
 
+
+
+TunedForest11 = randomForest(status_bin ~ phasef + enrollment_level + has_dmc + allocation + startMonth 
+                            + startYear + primary_purpose + intervention_model + intervention_type + HeartHealth
+                            + TumorGrowth + Hepatitis.StemCell + Cancer.x + PostCare + BrainStudy + Diabetes.Types
+                            + DrugDosage.x + PhysiologicalEffects + TrialExecution.x + BrainScan.Drug + Care + TrialExecution.y 
+                            + Cancer.y + BloodDieseasStudy + QulaityofLife + Surgery + DrugDosage.y + Diabetes + BabyVaccine,
+                            data = train.df, 
+                            ntree = 1000,
+                            mtry = 4,
+                            type = "class",
+                            importance = TRUE)
+
+#OOB rate: 9.91%
+
+
+#BEST ROC CURVE
+TunedForest12 = randomForest(status_bin ~ phasef + enrollment_level + has_dmc + allocation + startMonth 
+                             + startYear + primary_purpose + intervention_model + intervention_type + HeartHealth
+                             + TumorGrowth + Hepatitis.StemCell + Cancer.x + PostCare + BrainStudy + Diabetes.Types
+                             + DrugDosage.x + PhysiologicalEffects + TrialExecution.x + BrainScan.Drug + Care + TrialExecution.y 
+                             + Cancer.y + BloodDieseasStudy + QulaityofLife + Surgery + DrugDosage.y + Diabetes + BabyVaccine,
+                             data = train.df, 
+                             ntree = 1000,
+                             mtry = 5,
+                             type = "class",
+                             importance = TRUE)
+
+#OOB rate:9.84%
+
+
+TunedForest13 = randomForest(status_bin ~ phasef + enrollment_level + has_dmc + allocation + startMonth 
+                             + startYear + primary_purpose + intervention_model + intervention_type + HeartHealth
+                             + TumorGrowth + Hepatitis.StemCell + Cancer.x + PostCare + BrainStudy + Diabetes.Types
+                             + DrugDosage.x + PhysiologicalEffects + TrialExecution.x + BrainScan.Drug + Care + TrialExecution.y 
+                             + Cancer.y + BloodDieseasStudy + QulaityofLife + Surgery + DrugDosage.y + Diabetes + BabyVaccine,
+                             data = train.df, 
+                             ntree = 1000,
+                             mtry = 6,
+                             type = "class",
+                             importance = TRUE)
+
+#OOB rate: 9.8%
+
 #Used the next package for plotting an ROC curve for Random Forest
-#install.packages("ROCR")
+install.packages("ROCR")
 library(ROCR)
 
 #create the prediction object to calculate true positive rate and false positive rate
 #to plot them on the ROC curve
-TunedForest1.pr = predict(TunedForest1,type="prob",newdata=test.df)[,2]
-TunedForest1.pred = prediction(TunedForest1.pr, test.df$status_bin)
-TunedForest1.perf = performance(TunedForest1.pred,"tpr","fpr")
+TunedForest12.pr = predict(TunedForest12,type="prob",newdata=test.df)[,2]
+TunedForest12.pred = prediction(TunedForest12.pr, test.df$status_bin)
+TunedForest12.perf = performance(TunedForest12.pred,"tpr","fpr")
 
 #plot the curve
-plot(TunedForest1.perf,main="ROC Curve for Random Forest",col=2,lwd=2)
+plot(TunedForest12.perf,main="ROC Curve for Random Forest 12",col=2,lwd=2)
 
 #gray line which represents the random guess
 abline(a=0,b=1,lwd=2,lty=2,col="gray")
 
 #feature importance plot
-varImpPlot(TunedForest1)
+varImpPlot(TunedForest12)
 
 #########################
 ## LOGISTIC REGRESSION ##
@@ -614,7 +661,11 @@ model1 <- glm(status_bin ~ phasef + enrollment_level + intervention_type + Heart
               + TumorGrowth + Hepatitis.StemCell + Cancer + PostCare + BrainStudy + Diabetes.Types
               + DrugDosage + PhysiologicalEffects + TrialExecution, data = data_lda, family = binomial(link = logit))
 
+model2 <- glm(status_bin ~ phasef + enrollment_level + intervention_type + HeartHealth
+              + TumorGrowth + Hepatitis.StemCell + Cancer.x + PostCare + BrainStudy + Diabetes.Types
+              + DrugDosage.x + TrialExecution.x, data = data_lda, family = binomial(link = logit))
 summary(model1)
+summary(model2)
 
 #exponentiate coefficients for interpretations
 round(exp(coef(model1)), 3)
