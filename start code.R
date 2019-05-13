@@ -625,18 +625,26 @@ frow3 <- fluidRow(
 #)
 
 
-# frow4 <- fluidRow(
-#   box(title = 'LDA'
+frow4 <- fluidRow(
+  box(title = 'LDA - 2 topics'
+      ,solidHeader = TRUE
+      ,collapsible = TRUE
+      ,width = 12
+      ,plotOutput('plot6', height = 250))
+)
+
+# frow5 <- fluidRow(
+#   box(title = 'LDA - 1 topic'
 #       ,solidHeader = TRUE
 #       ,collapsible = TRUE
 #       ,width = 12
 #       ,plotOutput('plot6', height = 250))
 # )
 
-
 menus <-  sidebarMenu(
   menuItem("Main Dashboard", tabName = "dashboard", icon = icon("dashboard")), #see tabItem below
   menuItem("Enrollment Level Plots", tabName = "enrollmentplots", icon = icon("dashboard")) #see tabItem below
+  ,menuItem("LDA", tabName = 'lda', icon = icon('dashboard'))
 )
 
 checkboxes <- checkboxGroupInput("checkGroup",
@@ -663,14 +671,21 @@ ui <- dashboardPage(skin = "blue",
                       tabItems(
                         tabItem(tabName = "dashboard",
                                 h2("dashboard tab content"),
-                                frow1, 
-                                frow2
+                                frow1
                         ),
                         tabItem(tabName = "enrollmentplots",
-                                h2("more detailed info"),
-                                frow3
+                                h2("Enrollment Levels"),
+                                frow3,
+                                frow2
                                 #frow4
-                        ))))
+                        ),
+                        tabItem(tabName = 'lda',
+                                h2("LDA Topics"),
+                                frow4
+                                #,frow5
+
+                                )
+                        )))
 
 
 server <- function(input, output) {
@@ -694,9 +709,9 @@ server <- function(input, output) {
       theme(axis.text.x = element_text(angle = 45, hjust = 1))
   })
   output$plot4 <- renderPlot({
-    ggplot(data = current_data, aes(x = phase, color = phase, fill = phase)) +
+    ggplot(data = current_data, aes(x = phase, fill = phase)) +
       geom_bar() + facet_wrap(~overall_status, scales ='free') + 
-      labs(x = 'Phase', y = 'Count')
+      labs(x = 'Phase', y = 'Count', fill = 'Phase')
   })
   output$plot5 <- renderPlot({
     ggplot(data = current_data, aes(x = enrollment_level, fill = overall_status)) +
@@ -705,7 +720,4 @@ server <- function(input, output) {
   
 }
 
-
-
 shinyApp(ui, server)
-
