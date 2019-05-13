@@ -264,14 +264,15 @@ topics_one_word <- tidy(lda_one, matrix = "beta")
 write.csv( topics_one_word, "C:/Users/Rachel Youngquist/Documents/GitHub/CapstoneProject2/topics_two_word.csv")
 
 #get a small data frame of the top 10 descriptions for each topic
-top_terms_one_word <- topics %>%
+top_terms_one_word <- topics_one_word %>%
   group_by(topic) %>%
   top_n(5, beta) %>%
   ungroup() %>%
   arrange(topic, -beta)
 top_terms_one_word
 
-## name the topics for one word here
+top_terms_one_word$topic <- factor(top_terms_one_word$topic,
+                                   labels = c("BrainScan/Drug", "Care", "TrialExecution", "Cancer", "BloodDiseaseStudy", " QualityofLife", "Surgery", "DrugDosage", " Diabetes ", " BabyVaccine "))
 
 top_terms_one_word %>%
   mutate(term = reorder(term, beta)) %>%
@@ -280,15 +281,12 @@ top_terms_one_word %>%
   facet_wrap(~ topic, scales = "free") +
   coord_flip()
 
-#writing top terms to csv to increase run time
-write.csv(top_terms_one_word, "C:/Users/Rachel Youngquist/Documents/GitHub/CapstoneProject2/top_terms_one_word.csv")
-
 #per-document-per-topic probabilities
 documents <- tidy(lda_one, matrix = "gamma")
 documents_w<- documents %>%
   select(document, topic, gamma) %>%
   dcast(document ~ topic, value.var = "gamma")
-colnames(documents_w) <- c("nct_id", "Topic1", "Topic2")
+colnames(documents_w) <- c("nct_id", "BrainScan/Drug", "Care", "TrialExecution", "Cancer", "BloodDiseaseStudy", " QualityofLife", "Surgery", "DrugDosage", " Diabetes ", " BabyVaccine ")
 lda_one_word <- merge(documents_w, current_data, by="nct_id", all = T)
 str(lda_one_word)
 
@@ -306,8 +304,7 @@ tokens_tf_idf <- tokens_clean %>%
 head(tokens_tf_idf)
 
 #write files to csv for a speedy process
-lda_one_word <- write.csv(lda_one_word, "C:/Users/Rachel Youngquist/Documents/GitHub/CapstoneProject2/lda_one_word.csv")
-top_terms_one_word <- write.csv(top_terms_one_word, "C:/Users/Rachel Youngquist/Documents/GitHub/CapstoneProject2/top_terms_one_word.csv")
+write.csv(lda_one_word, "C:/Users/Rachel Youngquist/Documents/GitHub/CapstoneProject2/lda_one_word.csv")
 
 ########################
 # TWO WORD TEXT MINING #
@@ -427,7 +424,7 @@ topics_two_word <- tidy(lda_two, matrix = "beta")
 write.csv( topics_two_word, "C:/Users/Rachel Youngquist/Documents/GitHub/CapstoneProject2/topics_two_word.csv")
 
 #get a small data frame of the top 10 descriptions for each topic
-top_terms_two_word <- topics %>%
+top_terms_two_word <- topics_two_word %>%
   group_by(topic) %>%
   top_n(5, beta) %>%
   ungroup() %>%
@@ -444,8 +441,6 @@ top_terms_two_word %>%
   facet_wrap(~ topic, scales = "free") +
   coord_flip() +   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
-#writing top terms to csv to increase run time
-write.csv(top_terms_two_word, "C:/Users/Rachel Youngquist/Documents/GitHub/CapstoneProject2/top_terms_two_word.csv")
 
 #per-document-per-topic probabilities
 documents <- tidy(lda_two, matrix = "gamma")
@@ -457,8 +452,8 @@ lda_two_word <- merge(documents_w, current_data, by="nct_id", all = T)
 str(lda_two_word)
 
 #write files to csv for a speedy process
-lda_two_word <- write.csv(lda_two_word, "C:/Users/Rachel Youngquist/Documents/GitHub/CapstoneProject2/lda_two_word.csv")
-top_terms_two_word <- write.csv(top_terms_two_word, "C:/Users/Rachel Youngquist/Documents/GitHub/CapstoneProject2/top_terms_two_word.csv")
+write.csv(lda_two_word, "C:/Users/Rachel Youngquist/Documents/GitHub/CapstoneProject2/lda_two_word.csv")
+
 #wrote file to csv, will now read it in from local computer
 #added a "_2" to file name to differentiate from created above
 #in case different computers generate different data
