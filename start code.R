@@ -697,7 +697,7 @@ frow1 <- fluidRow(
       ,solidHeader = TRUE 
       ,collapsible = TRUE
       ,width = 12
-      ,plotOutput("plot1", height = 250))
+      ,plotOutput("plot1", height = 500))
 )
 
 frow2 <- fluidRow(
@@ -727,7 +727,7 @@ frow4 <- fluidRow(
       ,solidHeader = TRUE
       ,collapsible = TRUE
       ,width = 12
-      ,plotOutput('plot6', height = 250))
+      ,plotOutput('plot6', height = 600))
 )
 
 frow5 <- fluidRow(
@@ -735,7 +735,7 @@ frow5 <- fluidRow(
       ,solidHeader = TRUE
       ,collapsible = TRUE
       ,width = 12
-      ,plotOutput('plot7', height = 250))
+      ,plotOutput('plot7', height = 600))
 )
 
 frow6 <- fluidRow(
@@ -743,7 +743,7 @@ frow6 <- fluidRow(
       ,solidHeader = TRUE
       ,collapsible = TRUE
       ,width = 12
-      ,plotOutput('plot2', height = 250))
+      ,plotOutput('plot2', height = 500))
 )
 
 # Menu to have 3 tabs
