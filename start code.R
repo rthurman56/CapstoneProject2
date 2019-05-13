@@ -252,21 +252,28 @@ dtm <- tokens_count %>%
 lda <- LDA(dtm, k = 10, control = list(seed = 1234))
 
 
-topics <- tidy(lda, matrix = "beta")
+topics_one_word <- tidy(lda, matrix = "beta")
+
+#writing topics to csv to increase run time
+write.csv( topics_one_word, "C:/Users/Rachel Youngquist/Documents/GitHub/CapstoneProject2/topics_two_word.csv")
+
 #get a small data frame of the top 10 descriptions for each topic
-top_terms <- topics %>%
+top_terms_one_word <- topics %>%
   group_by(topic) %>%
   top_n(5, beta) %>%
   ungroup() %>%
   arrange(topic, -beta)
-top_terms
+top_terms_one_word
 
-top_terms %>%
+top_terms_one_word %>%
   mutate(term = reorder(term, beta)) %>%
   ggplot(aes(term, beta, fill = factor(topic))) +
   geom_col(show.legend = FALSE) +
   facet_wrap(~ topic, scales = "free") +
   coord_flip()
+
+#writing top terms to csv to increase run time
+write.csv(top_terms_one_word, "C:/Users/Rachel Youngquist/Documents/GitHub/CapstoneProject2/top_terms_one_word.csv")
 
 #per-document-per-topic probabilities
 documents <- tidy(lda, matrix = "gamma")
@@ -290,18 +297,14 @@ tokens_tf_idf <- tokens_clean %>%
   arrange(desc(tf_idf))
 head(tokens_tf_idf)
 
-#creating one word dataframes to reuse code for two words
-one_tokens <- tokens
-one_tokens_clean <- tokens_clean
-one_tokens_count   <- tokens_count
-one_lab_lda <- lab_lda
-one_topics <- topics
-one_top_terms <- top_terms
-one_tokens_tf_idf <- tokens_tf_idf
+#write files to csv for a speedy process
+lda_one_word <- write.csv(lda_one_word, "C:/Users/Rachel Youngquist/Documents/GitHub/CapstoneProject2/lda_one_word.csv")
+top_terms_one_word <- write.csv(top_terms_one_word, "C:/Users/Rachel Youngquist/Documents/GitHub/CapstoneProject2/top_terms_one_word.csv")
 
 ######################
 #two word text mining#
 ######################
+
 tokens <- current_data %>% unnest_tokens(word, description, token = "ngrams", n= 2)
 #see first few rows - note reach row is now a single description (token)
 head(tokens)
@@ -410,24 +413,31 @@ dtm <- tokens_count %>%
 #lda
 lda <- LDA(dtm, k = 10, control = list(seed = 1234))
 
-topics <- tidy(lda, matrix = "beta")
+topics_two_word <- tidy(lda, matrix = "beta")
+
+#writing topics to csv to increase run time
+write.csv( topics_two_word, "C:/Users/Rachel Youngquist/Documents/GitHub/CapstoneProject2/topics_two_word.csv")
+
 #get a small data frame of the top 10 descriptions for each topic
-top_terms <- topics %>%
+top_terms_two_word <- topics %>%
   group_by(topic) %>%
   top_n(5, beta) %>%
   ungroup() %>%
   arrange(topic, -beta)
-top_terms
+top_terms_two_word
 
-top_terms$topic <- factor(top_terms$topic,
+top_terms_two_word$topic <- factor(top_terms_two_word$topic,
                           labels = c("HeartHealth", "TumorGrowth", "Hepatitis/StemCell", "Cancer", "PostCare", "BrainStudy", "Diabetes/Types", "DrugDosage", "PhysiologicalEffects", "TrialExecution"))
 
-top_terms %>%
+top_terms_two_word %>%
   mutate(term = reorder(term, beta)) %>%
   ggplot(aes(term, beta, fill = factor(topic))) +
   geom_col(show.legend = FALSE) +
   facet_wrap(~ topic, scales = "free") +
   coord_flip() +   theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+#writing top terms to csv to increase run time
+write.csv(top_terms_two_word, "C:/Users/Rachel Youngquist/Documents/GitHub/CapstoneProject2/top_terms_two_word.csv")
 
 #per-document-per-topic probabilities
 documents <- tidy(lda, matrix = "gamma")
@@ -438,26 +448,35 @@ colnames(documents_w) <- c("nct_id", "HeartHealth", "TumorGrowth", "Hepatitis/St
 lab_lda <- merge(documents_w, current_data, by="nct_id", all = T)
 str(lab_lda)
 
-
+#write files to csv for a speedy process
+lda_two_word <- write.csv(lda_two_word, "C:/Users/Rachel Youngquist/Documents/GitHub/CapstoneProject2/lda_two_word.csv")
+top_terms_two_word <- write.csv(top_terms_two_word, "C:/Users/Rachel Youngquist/Documents/GitHub/CapstoneProject2/top_terms_two_word.csv")
 ### wrote file to csv, will now read it in from local computer
-lab_lda <- read.csv(file.choose(), header = T)
-
+lda_one_word <- read.csv("C:/Users/Rachel Youngquist/Documents/GitHub/CapstoneProject2/lda_one_word.csv", header = T)
+top_terms_one_word <- read.csv("C:/Users/Rachel Youngquist/Documents/GitHub/CapstoneProject2/top_terms_one_word.csv", header = T)
+lda_two_word <- read.csv("C:/Users/Rachel Youngquist/Documents/GitHub/CapstoneProject2/lda_two_word.csv", header = T)
+top_terms_two_word <- read.csv("C:/Users/Rachel Youngquist/Documents/GitHub/CapstoneProject2/top_terms_two_word.csv", header = T)
 
 ###########################
 ## THIS FOREST IS RANDOM ##
 ###########################
 
 #merge lab_lda with current_data to make one for random forest use
+lab_lda = lab_lda[,-c(1, 13:28)]
 one_word_lda= read.csv(choose.files(), header=TRUE)
 one_word_lda= subset(one_word_lda[-c(1,13:29)])
 data_lda <- merge(current_data, lab_lda, by = 'nct_id', all.x = T, all.y = T)
 data_lda = merge(data_lda, one_word_lda, by = 'nct_id', all.x = T, all.y = T)
 
-data_lda$allocation <- as.factor(data_lda$allocation)
+
+data_lda$allocation <- as.factor(data_lda$allocation.x)
 data_lda$has_dmc <- as.factor(data_lda$has_dmc)
 data_lda$primary_purpose <- as.factor(data_lda$primary_purpose)
 data_lda$intervention_model <- as.factor(data_lda$intervention_model)
 data_lda$intervention_type <- as.factor(data_lda$intervention_type)
+data_lda$status_bin = as.factor(data_lda$status_bin)
+
+
 
 smp_sz <- floor(nrow(data_lda)*.4)
 
@@ -474,9 +493,8 @@ test.df <- smol_df[-train_idx,]
 
 myForest <- randomForest(status_bin ~ phasef + enrollment_level + has_dmc + allocation + startMonth 
                          + startYear + primary_purpose + intervention_model + intervention_type + HeartHealth
-                         + TumorGrowth + Hepatitis.StemCell + Cancer + PostCare + BrainStudy + Diabetes.Types
+                         + TumorGrowth + Hepatitis.StemCell + Cancer + PostCare + BrainStudy + DiabetesTypes
                          + DrugDosage + PhysiologicalEffects + TrialExecution,
-
                          data = train.df, 
                          type = "class", 
                          importance = TRUE)
@@ -485,7 +503,7 @@ myForest
 
 TunedForest1 = randomForest(status_bin ~ phasef + enrollment_level + has_dmc + allocation + startMonth 
                             + startYear + primary_purpose + intervention_model + intervention_type + HeartHealth
-                            + TumorGrowth + Hepatitis.StemCell + Cancer + PostCare + BrainStudy + Diabetes.Types
+                            + TumorGrowth + Hepatitis.StemCell + Cancer + PostCare + BrainStudy + DiabetesTypes
                             + DrugDosage + PhysiologicalEffects + TrialExecution,
                             data = train.df, 
                             ntree = 500,
@@ -495,7 +513,7 @@ TunedForest1 = randomForest(status_bin ~ phasef + enrollment_level + has_dmc + a
 #OOB rate: 9.71% BEST MODEL ^^^^^
 TunedForest2 = randomForest(status_bin ~ phasef + enrollment_level + has_dmc + allocation + startMonth 
                             + startYear + primary_purpose + intervention_model + intervention_type + HeartHealth
-                            + TumorGrowth + Hepatitis.StemCell + Cancer + PostCare + BrainStudy + Diabetes.Types
+                            + TumorGrowth + Hepatitis.StemCell + Cancer + PostCare + BrainStudy + DiabetesTypes
                             + DrugDosage + PhysiologicalEffects + TrialExecution,
                             data = train.df, 
                             ntree = 500,
@@ -505,7 +523,7 @@ TunedForest2 = randomForest(status_bin ~ phasef + enrollment_level + has_dmc + a
 #OOB rate: 9.76%
 TunedForest3 = randomForest(status_bin ~ phasef + enrollment_level + has_dmc + allocation + startMonth 
                             + startYear + primary_purpose + intervention_model + intervention_type + HeartHealth
-                            + TumorGrowth + Hepatitis.StemCell + Cancer + PostCare + BrainStudy + Diabetes.Types
+                            + TumorGrowth + Hepatitis.StemCell + Cancer + PostCare + BrainStudy + DiabetesTypes
                             + DrugDosage + PhysiologicalEffects + TrialExecution,
                             data = train.df, 
                             ntree = 500,
@@ -515,7 +533,7 @@ TunedForest3 = randomForest(status_bin ~ phasef + enrollment_level + has_dmc + a
 #OOB rate: 9.76%
 TunedForest4 = randomForest(status_bin ~ phasef + enrollment_level + has_dmc + allocation + startMonth 
                             + startYear + primary_purpose + intervention_model + intervention_type + HeartHealth
-                            + TumorGrowth + Hepatitis.StemCell + Cancer + PostCare + BrainStudy + Diabetes.Types
+                            + TumorGrowth + Hepatitis.StemCell + Cancer + PostCare + BrainStudy + DiabetesTypes
                             + DrugDosage + PhysiologicalEffects + TrialExecution,
                             data = train.df, 
                             ntree = 750,
@@ -525,7 +543,7 @@ TunedForest4 = randomForest(status_bin ~ phasef + enrollment_level + has_dmc + a
 #OOB rate: 9.74%
 TunedForest5 = randomForest(status_bin ~ phasef + enrollment_level + has_dmc + allocation + startMonth 
                             + startYear + primary_purpose + intervention_model + intervention_type + HeartHealth
-                            + TumorGrowth + Hepatitis.StemCell + Cancer + PostCare + BrainStudy + Diabetes.Types
+                            + TumorGrowth + Hepatitis.StemCell + Cancer + PostCare + BrainStudy + DiabetesTypes
                             + DrugDosage + PhysiologicalEffects + TrialExecution,
                             data = train.df, 
                             ntree = 750,
@@ -535,7 +553,7 @@ TunedForest5 = randomForest(status_bin ~ phasef + enrollment_level + has_dmc + a
 #OOB rate: 9.95%
 TunedForest6 = randomForest(status_bin ~ phasef + enrollment_level + has_dmc + allocation + startMonth 
                             + startYear + primary_purpose + intervention_model + intervention_type + HeartHealth
-                            + TumorGrowth + Hepatitis.StemCell + Cancer + PostCare + BrainStudy + Diabetes.Types
+                            + TumorGrowth + Hepatitis.StemCell + Cancer + PostCare + BrainStudy + DiabetesTypes
                             + DrugDosage + PhysiologicalEffects + TrialExecution,
                             data = train.df, 
                             ntree = 750,
@@ -545,7 +563,7 @@ TunedForest6 = randomForest(status_bin ~ phasef + enrollment_level + has_dmc + a
 #OOB rate: 9.95%
 TunedForest7 = randomForest(status_bin ~ phasef + enrollment_level + has_dmc + allocation + startMonth 
                             + startYear + primary_purpose + intervention_model + intervention_type + HeartHealth
-                            + TumorGrowth + Hepatitis.StemCell + Cancer + PostCare + BrainStudy + Diabetes.Types
+                            + TumorGrowth + Hepatitis.StemCell + Cancer + PostCare + BrainStudy + DiabetesTypes
                             + DrugDosage + PhysiologicalEffects + TrialExecution,
                             data = train.df, 
                             ntree = 1000,
@@ -555,7 +573,7 @@ TunedForest7 = randomForest(status_bin ~ phasef + enrollment_level + has_dmc + a
 #OOB rate: 9.92%
 TunedForest8 = randomForest(status_bin ~ phasef + enrollment_level + has_dmc + allocation + startMonth 
                             + startYear + primary_purpose + intervention_model + intervention_type + HeartHealth
-                            + TumorGrowth + Hepatitis.StemCell + Cancer + PostCare + BrainStudy + Diabetes.Types
+                            + TumorGrowth + Hepatitis.StemCell + Cancer + PostCare + BrainStudy + DiabetesTypes
                             + DrugDosage + PhysiologicalEffects + TrialExecution,
                             data = train.df, 
                             ntree = 1000,
@@ -565,7 +583,7 @@ TunedForest8 = randomForest(status_bin ~ phasef + enrollment_level + has_dmc + a
 #OOB rate: 9.97%
 TunedForest9 = randomForest(status_bin ~ phasef + enrollment_level + has_dmc + allocation + startMonth 
                             + startYear + primary_purpose + intervention_model + intervention_type + HeartHealth
-                            + TumorGrowth + Hepatitis.StemCell + Cancer + PostCare + BrainStudy + Diabetes.Types
+                            + TumorGrowth + Hepatitis.StemCell + Cancer + PostCare + BrainStudy + DiabetesTypes
                             + DrugDosage + PhysiologicalEffects + TrialExecution,
                             data = train.df, 
                             ntree = 1000,
@@ -712,63 +730,117 @@ frow3 <- fluidRow(
       ,plotOutput("plot5", height = 250)) 
 )
 
-#choose image file
-#outputID <- choose.files()  
 
-#frow4 <- fluidRow(
- # box(title = "LDA Topics"
-  #    ,solidHeader = TRUE 
-   #   ,collapsible = TRUE
-    #  ,width = 12
-     # ,imageOutput(outputID, width = "100%", height = "400px", inline = FALSE))
-#)
+frow4 <- fluidRow(
+  box(title = 'LDA - 1 topic'
+      ,solidHeader = TRUE
+      ,collapsible = TRUE
+      ,width = 12
+      ,plotOutput('plot6', height = 250))
+)
 
+frow5 <- fluidRow(
+  box(title = 'LDA - 2 topics'
+      ,solidHeader = TRUE
+      ,collapsible = TRUE
+      ,width = 12
+      ,plotOutput('plot7', height = 250))
+)
+
+menus <-  sidebarMenu(
+  menuItem("Main Dashboard", tabName = "dashboard", icon = icon("dashboard")), #see tabItem below
+  menuItem("Enrollment Level Plots", tabName = "enrollmentplots", icon = icon("dashboard")) #see tabItem below
+  ,menuItem("LDA", tabName = 'lda', icon = icon('dashboard'))
+)
+
+checkboxes <- checkboxGroupInput("checkGroup",
+                                 h3("Enrollment Level:"),
+                                 choices = list("0-21" ,
+                                                "22-43" ,
+                                                "44-80" ,
+                                                "81-199" ,
+                                                "200-999" ,
+                                                "1000+"),
+                                 selected = c("(-1,21]" ,
+                                              "(21,43]" ,
+                                              "(43,80]" ,
+                                              "(80,199]" ,
+                                              "(199-999]" ,
+                                              "(999,6.71e+07]" ))
 
 ui <- dashboardPage(skin = "blue",
                     dashboardHeader(title = "Clinical Trials"),
                     dashboardSidebar(
-                      sidebarPanel(
-                        # Input: Specification of range within an interval ----
-                        sliderInput("range", "Year:",
-                                    min = 1980, max = 2017,
-                                    value = c(2000,2010))
-                      ),
-                    # combine the three fluid rows to make the body
+                      checkboxes,
+                      menus),
                     dashboardBody(
-                      frow1, #these are all defined above
-                      frow2,
-                      frow3
-                    )))
+                      tabItems(
+                        tabItem(tabName = "dashboard",
+                                h2("dashboard tab content"),
+                                frow1
+                        ),
+                        tabItem(tabName = "enrollmentplots",
+                                h2("Enrollment Levels"),
+                                frow3,
+                                frow2
+                                #frow4
+                        ),
+                        tabItem(tabName = 'lda',
+                                h2("LDA Topics"),
+                                frow4,
+                                frow5
+
+                                )
+                        )))
+
 
 server <- function(input, output) {
-  current_data2 <- reactive({
-    subset(current_data, startYear %in% as.character(paste(input$range, collapse = " ")))
-  })
+  # current_data2 <- reactive({
+  # subset(current_data, enrollment_level %in% input$checkGroup)
+  # }) 
+  # if we get this working, then we should use current_data2() as the data for each plot in the server
   output$plot1 <- renderPlot({
-    ggplot(data = current_data2) + geom_mosaic(aes(x = product(overall_status, intervention_model), fill = overall_status)) + 
+    ggplot(data = current_data) + geom_mosaic(aes(x = product(overall_status, intervention_model), fill = overall_status)) + 
       labs(x = 'Intervention Model', y = 'Overall Status', fill = 'Overall Status') +
       theme(axis.text.x = element_text(angle = 45, hjust = 1))
   })
   output$plot2 <- renderPlot({
-    ggplot(data = current_data2) + geom_mosaic(aes(x = product(overall_status, intervention_type), fill = overall_status)) + 
+    ggplot(data = current_data) + geom_mosaic(aes(x = product(overall_status, intervention_type), fill = overall_status)) + 
       labs(x = 'Intervention Type', y = 'Overall Status', fill = 'Overall Status') +
       theme(axis.text.x = element_text(angle = 45, hjust = 1))
   })
   output$plot3 <- renderPlot({
-    ggplot(data = current_data2, aes(x = enrollment_level, fill = overall_status)) + geom_bar(position = 'fill') + 
+    ggplot(data = current_data, aes(x = enrollment_level, fill = overall_status)) + geom_bar(position = 'fill') + 
       facet_wrap(~phasef) + labs(x = 'Enrollment', y = 'Proportion', fill = 'Overall Status') + 
       theme(axis.text.x = element_text(angle = 45, hjust = 1))
   })
   output$plot4 <- renderPlot({
-    ggplot(data = current_data2, aes(x = phase, color = phase, fill = phase)) +
+    ggplot(data = current_data, aes(x = phase, fill = phase)) +
       geom_bar() + facet_wrap(~overall_status, scales ='free') + 
-      labs(x = 'Phase', y = 'Count')
+      labs(x = 'Phase', y = 'Count', fill = 'Phase')
   })
   output$plot5 <- renderPlot({
-    ggplot(data = current_data2, aes(x = enrollment_level, fill = overall_status)) +
+    ggplot(data = current_data, aes(x = enrollment_level, fill = overall_status)) +
       geom_bar(position = 'fill') + labs(x = 'Enrollment', y = 'Proportion', fill = 'Overall Status')
-})
-
+  })
+  output$plot6 <- renderPlot({
+    top_terms_oneword_2 %>%
+      mutate(term = reorder(term, beta)) %>%
+      ggplot(aes(term, beta, fill = factor(topic))) +
+      geom_col(show.legend = FALSE) +
+      facet_wrap(~ topic, scales = "free") +
+      coord_flip() +   theme(axis.text.x = element_text(angle = 45, hjust = 1))
+  })
+  output$plot7 <- renderPlot({
+    top_terms_twoword_2 %>%
+      mutate(term = reorder(term, beta)) %>%
+      ggplot(aes(term, beta, fill = factor(topic))) +
+      geom_col(show.legend = FALSE) +
+      facet_wrap(~ topic, scales = "free") +
+      coord_flip() +   theme(axis.text.x = element_text(angle = 45, hjust = 1))
+    
+  })
+  
 }
 
 shinyApp(ui, server)
