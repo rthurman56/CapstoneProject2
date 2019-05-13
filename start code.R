@@ -258,14 +258,15 @@ topics_one_word <- tidy(lda_one, matrix = "beta")
 write.csv( topics_one_word, "C:/Users/Rachel Youngquist/Documents/GitHub/CapstoneProject2/topics_two_word.csv")
 
 #get a small data frame of the top 10 descriptions for each topic
-top_terms_one_word <- topics %>%
+top_terms_one_word <- topics_one_word %>%
   group_by(topic) %>%
   top_n(5, beta) %>%
   ungroup() %>%
   arrange(topic, -beta)
 top_terms_one_word
 
-## name the topics for one word here
+top_terms_two_word$topic <- factor(top_terms_two_word$topic,
+                                   labels = c("BrainScan/Drug", "Care", "TrialExecution", "Cancer", "BloodDiseaseStudy", " QualityofLife", "Surgery", "DrugDosage", " Diabetes ", " BabyVaccine "))
 
 top_terms_one_word %>%
   mutate(term = reorder(term, beta)) %>%
@@ -282,7 +283,7 @@ documents <- tidy(lda_one, matrix = "gamma")
 documents_w<- documents %>%
   select(document, topic, gamma) %>%
   dcast(document ~ topic, value.var = "gamma")
-colnames(documents_w) <- c("nct_id", "Topic1", "Topic2")
+colnames(documents_w) <- c("nct_id", "BrainScan/Drug", "Care", "TrialExecution", "Cancer", "BloodDiseaseStudy", " QualityofLife", "Surgery", "DrugDosage", " Diabetes ", " BabyVaccine ")
 lda_one_word <- merge(documents_w, current_data, by="nct_id", all = T)
 str(lda_one_word)
 
@@ -421,7 +422,7 @@ topics_two_word <- tidy(lda_two, matrix = "beta")
 write.csv( topics_two_word, "C:/Users/Rachel Youngquist/Documents/GitHub/CapstoneProject2/topics_two_word.csv")
 
 #get a small data frame of the top 10 descriptions for each topic
-top_terms_two_word <- topics %>%
+top_terms_two_word <- topics_two_word %>%
   group_by(topic) %>%
   top_n(5, beta) %>%
   ungroup() %>%
