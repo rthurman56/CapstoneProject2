@@ -263,23 +263,7 @@ topics_one_word <- tidy(lda_one, matrix = "beta")
 #writing topics to csv to increase run time
 write.csv( topics_one_word, "C:/Users/Rachel Youngquist/Documents/GitHub/CapstoneProject2/topics_two_word.csv")
 
-#get a small data frame of the top 10 descriptions for each topic
-top_terms_one_word <- topics_one_word %>%
-  group_by(topic) %>%
-  top_n(5, beta) %>%
-  ungroup() %>%
-  arrange(topic, -beta)
-top_terms_one_word
 
-top_terms_one_word$topic <- factor(top_terms_one_word$topic,
-                                   labels = c("BrainScan/Drug", "Care", "TrialExecution", "Cancer", "BloodDiseaseStudy", " QualityofLife", "Surgery", "DrugDosage", " Diabetes ", " BabyVaccine "))
-
-top_terms_one_word %>%
-  mutate(term = reorder(term, beta)) %>%
-  ggplot(aes(term, beta, fill = factor(topic))) +
-  geom_col(show.legend = FALSE) +
-  facet_wrap(~ topic, scales = "free") +
-  coord_flip()
 
 #per-document-per-topic probabilities
 documents <- tidy(lda_one, matrix = "gamma")
@@ -423,24 +407,6 @@ topics_two_word <- tidy(lda_two, matrix = "beta")
 #writing topics to csv to increase run time
 write.csv( topics_two_word, "C:/Users/Rachel Youngquist/Documents/GitHub/CapstoneProject2/topics_two_word.csv")
 
-#get a small data frame of the top 10 descriptions for each topic
-top_terms_two_word <- topics_two_word %>%
-  group_by(topic) %>%
-  top_n(5, beta) %>%
-  ungroup() %>%
-  arrange(topic, -beta)
-top_terms_two_word
-
-top_terms_two_word$topic <- factor(top_terms_two_word$topic,
-                          labels = c("HeartHealth", "TumorGrowth", "Hepatitis/StemCell", "Cancer", "PostCare", "BrainStudy", "Diabetes/Types", "DrugDosage", "PhysiologicalEffects", "TrialExecution"))
-
-top_terms_two_word %>%
-  mutate(term = reorder(term, beta)) %>%
-  ggplot(aes(term, beta, fill = factor(topic))) +
-  geom_col(show.legend = FALSE) +
-  facet_wrap(~ topic, scales = "free") +
-  coord_flip() +   theme(axis.text.x = element_text(angle = 45, hjust = 1))
-
 
 #per-document-per-topic probabilities
 documents <- tidy(lda_two, matrix = "gamma")
@@ -458,9 +424,7 @@ write.csv(lda_two_word, "C:/Users/Rachel Youngquist/Documents/GitHub/CapstonePro
 #added a "_2" to file name to differentiate from created above
 #in case different computers generate different data
 lda_one_word_2 <- read.csv("C:/Users/Rachel Youngquist/Documents/GitHub/CapstoneProject2/lda_one_word.csv", header = T)
-top_terms_one_word_2 <- read.csv("./top_terms_one_word.csv", header = T)
 lda_two_word_2 <- read.csv("C:/Users/Rachel Youngquist/Documents/GitHub/CapstoneProject2/lda_two_word.csv", header = T)
-top_terms_two_word_2 <- read.csv("./top_terms_two_word.csv", header = T)
 
 ###########################
 ## THIS FOREST IS RANDOM ##
@@ -700,8 +664,32 @@ round(exp(coef(model1)), 3)
 ####################
 
 ## read in topics_one_word and topics_two_word here
+topics_one_word_2 <- read.csv("./topics_one_word.csv", header = T)
+topics_two_word_2 <- read.csv("./topics_two_word.csv", header = T)
+
 ## grab code from above that turns topics into top_terms and names topics
 ## will be using bottom half of the code (plotting) in the dashboards
+#get a small data frame of the top 10 descriptions for each topic
+top_terms_one_word <- topics_one_word_2 %>%
+  group_by(topic) %>%
+  top_n(5, beta) %>%
+  ungroup() %>%
+  arrange(topic, -beta)
+top_terms_one_word
+
+top_terms_one_word$topic <- factor(top_terms_one_word$topic,
+                                   labels = c("BrainScan/Drug", "Care", "TrialExecution", "Cancer", "BloodDiseaseStudy", " QualityofLife", "Surgery", "DrugDosage", " Diabetes ", " BabyVaccine "))
+
+#get a small data frame of the top 10 descriptions for each topic
+top_terms_two_word <- topics_two_word_2 %>%
+  group_by(topic) %>%
+  top_n(5, beta) %>%
+  ungroup() %>%
+  arrange(topic, -beta)
+top_terms_two_word
+
+top_terms_two_word$topic <- factor(top_terms_two_word$topic,
+                                   labels = c("HeartHealth", "TumorGrowth", "Hepatitis/StemCell", "Cancer", "PostCare", "BrainStudy", "Diabetes/Types", "DrugDosage", "PhysiologicalEffects", "TrialExecution"))
 
 
 frow1 <- fluidRow(
