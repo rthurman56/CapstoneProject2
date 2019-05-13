@@ -309,9 +309,9 @@ head(tokens_tf_idf)
 lda_one_word <- write.csv(lda_one_word, "C:/Users/Rachel Youngquist/Documents/GitHub/CapstoneProject2/lda_one_word.csv")
 top_terms_one_word <- write.csv(top_terms_one_word, "C:/Users/Rachel Youngquist/Documents/GitHub/CapstoneProject2/top_terms_one_word.csv")
 
-######################
-#two word text mining#
-######################
+########################
+# TWO WORD TEXT MINING #
+########################
 
 tokens <- current_data %>% unnest_tokens(word, description, token = "ngrams", n= 2)
 #see first few rows - note reach row is now a single description (token)
@@ -463,9 +463,9 @@ top_terms_two_word <- write.csv(top_terms_two_word, "C:/Users/Rachel Youngquist/
 #added a "_2" to file name to differentiate from created above
 #in case different computers generate different data
 lda_one_word_2 <- read.csv("C:/Users/Rachel Youngquist/Documents/GitHub/CapstoneProject2/lda_one_word.csv", header = T)
-top_terms_one_word_2 <- read.csv("C:/Users/Rachel Youngquist/Documents/GitHub/CapstoneProject2/top_terms_one_word.csv", header = T)
+top_terms_one_word_2 <- read.csv("./top_terms_one_word.csv", header = T)
 lda_two_word_2 <- read.csv("C:/Users/Rachel Youngquist/Documents/GitHub/CapstoneProject2/lda_two_word.csv", header = T)
-top_terms_two_word_2 <- read.csv("C:/Users/Rachel Youngquist/Documents/GitHub/CapstoneProject2/top_terms_two_word.csv", header = T)
+top_terms_two_word_2 <- read.csv("./top_terms_two_word.csv", header = T)
 
 ###########################
 ## THIS FOREST IS RANDOM ##
@@ -703,6 +703,11 @@ round(exp(coef(model1)), 3)
 ####################
 ## DASHBOARD TIME ##
 ####################
+
+## read in topics_one_word and topics_two_word here
+## grab code from above that turns topics into top_terms and names topics
+## will be using bottom half of the code (plotting) in the dashboards
+
 
 frow1 <- fluidRow(
   box(title = "Intervention Models and Overall Status"
