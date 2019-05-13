@@ -458,9 +458,7 @@ write.csv(lda_two_word, "C:/Users/Rachel Youngquist/Documents/GitHub/CapstonePro
 #added a "_2" to file name to differentiate from created above
 #in case different computers generate different data
 lda_one_word_2 <- read.csv("C:/Users/Rachel Youngquist/Documents/GitHub/CapstoneProject2/lda_one_word.csv", header = T)
-top_terms_one_word_2 <- read.csv("./top_terms_one_word.csv", header = T)
 lda_two_word_2 <- read.csv("C:/Users/Rachel Youngquist/Documents/GitHub/CapstoneProject2/lda_two_word.csv", header = T)
-top_terms_two_word_2 <- read.csv("./top_terms_two_word.csv", header = T)
 
 ###########################
 ## THIS FOREST IS RANDOM ##
