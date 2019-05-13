@@ -464,12 +464,11 @@ top_terms_two_word <- read.csv("C:/Users/Rachel Youngquist/Documents/GitHub/Caps
 
 #merge lab_lda with current_data to make one for random forest use
 
-lda_two_word = lab_lda[,-c(1, 13:28)]
-one_word_lda= subset(one_word_lda[-c(1,13:29)])
+lda_two_word <- lab_lda[,-c(1, 13:28)]
+lda_one_word <- subset(one_word_lda[-c(1,13:29)])
 
 data_lda <- merge(current_data, lab_lda, by = 'nct_id', all.x = T, all.y = T)
-data_lda <- merge(data_lda, one_word_lda, by = 'nct_id', all.x = T, all.y = T)
-
+data_lda <- merge(data_lda, lda_one_word, by = 'nct_id', all.x = T, all.y = T)
 
 data_lda$allocation <- as.factor(data_lda$allocation.x)
 data_lda$has_dmc <- as.factor(data_lda$has_dmc)
@@ -477,8 +476,6 @@ data_lda$primary_purpose <- as.factor(data_lda$primary_purpose)
 data_lda$intervention_model <- as.factor(data_lda$intervention_model)
 data_lda$intervention_type <- as.factor(data_lda$intervention_type)
 data_lda$status_bin = as.factor(data_lda$status_bin)
-
-
 
 for(i in 1:length(data_lda$nct_id)){
   maxOneWord = -1
