@@ -249,10 +249,10 @@ dtm <- tokens_count %>%
   cast_dtm(nct_id, word, n)
 
 #lda
-lda <- LDA(dtm, k = 10, control = list(seed = 1234))
+lda_one <- LDA(dtm, k = 10, control = list(seed = 1234))
 
 
-topics_one_word <- tidy(lda, matrix = "beta")
+topics_one_word <- tidy(lda_one, matrix = "beta")
 
 #writing topics to csv to increase run time
 write.csv( topics_one_word, "C:/Users/Rachel Youngquist/Documents/GitHub/CapstoneProject2/topics_two_word.csv")
@@ -278,18 +278,18 @@ top_terms_one_word %>%
 write.csv(top_terms_one_word, "C:/Users/Rachel Youngquist/Documents/GitHub/CapstoneProject2/top_terms_one_word.csv")
 
 #per-document-per-topic probabilities
-documents <- tidy(lda, matrix = "gamma")
+documents <- tidy(lda_one, matrix = "gamma")
 documents_w<- documents %>%
   select(document, topic, gamma) %>%
   dcast(document ~ topic, value.var = "gamma")
 colnames(documents_w) <- c("nct_id", "Topic1", "Topic2")
-lab_lda <- merge(documents_w, current_data, by="nct_id", all = T)
-str(lab_lda)
+lda_one_word <- merge(documents_w, current_data, by="nct_id", all = T)
+str(lda_one_word)
 
 #model probability of a  status_bin review based on topic1 probability
 #logit(p) = beta_0 + beta_1*topic1
-lab_lda$overall_status <-I(lab_lda$overall_status== 'Terminated')
-m <- glm(status_bin ~ Topic1 , data = lab_lda,
+lda_one_word$overall_status <-I(lda_one_word$overall_status== 'Terminated')
+m <- glm(status_bin ~ Topic1 , data = lda_one_word,
          family = binomial)
 exp(coef(m))
 
@@ -413,9 +413,9 @@ dtm <- tokens_count %>%
   cast_dtm(nct_id, word, n)
 
 #lda
-lda <- LDA(dtm, k = 10, control = list(seed = 1234))
+lda_two <- LDA(dtm, k = 10, control = list(seed = 1234))
 
-topics_two_word <- tidy(lda, matrix = "beta")
+topics_two_word <- tidy(lda_two, matrix = "beta")
 
 #writing topics to csv to increase run time
 write.csv( topics_two_word, "C:/Users/Rachel Youngquist/Documents/GitHub/CapstoneProject2/topics_two_word.csv")
@@ -442,22 +442,22 @@ top_terms_two_word %>%
 write.csv(top_terms_two_word, "C:/Users/Rachel Youngquist/Documents/GitHub/CapstoneProject2/top_terms_two_word.csv")
 
 #per-document-per-topic probabilities
-documents <- tidy(lda, matrix = "gamma")
+documents <- tidy(lda_two, matrix = "gamma")
 documents_w<- documents %>%
   select(document, topic, gamma) %>%
   dcast(document ~ topic, value.var = "gamma")
 colnames(documents_w) <- c("nct_id", "HeartHealth", "TumorGrowth", "Hepatitis/StemCell", "Cancer", "PostCare", "BrainStudy", "Diabetes/Types", "DrugDosage", "PhysiologicalEffects", "TrialExecution")
-lab_lda <- merge(documents_w, current_data, by="nct_id", all = T)
-str(lab_lda)
+lda_two_word <- merge(documents_w, current_data, by="nct_id", all = T)
+str(lda_two_word)
 
 #write files to csv for a speedy process
 lda_two_word <- write.csv(lda_two_word, "C:/Users/Rachel Youngquist/Documents/GitHub/CapstoneProject2/lda_two_word.csv")
 top_terms_two_word <- write.csv(top_terms_two_word, "C:/Users/Rachel Youngquist/Documents/GitHub/CapstoneProject2/top_terms_two_word.csv")
 ### wrote file to csv, will now read it in from local computer
-lda_one_word <- read.csv("C:/Users/Rachel Youngquist/Documents/GitHub/CapstoneProject2/lda_one_word.csv", header = T)
-top_terms_one_word <- read.csv("C:/Users/Rachel Youngquist/Documents/GitHub/CapstoneProject2/top_terms_one_word.csv", header = T)
-lda_two_word <- read.csv("C:/Users/Rachel Youngquist/Documents/GitHub/CapstoneProject2/lda_two_word.csv", header = T)
-top_terms_two_word <- read.csv("C:/Users/Rachel Youngquist/Documents/GitHub/CapstoneProject2/top_terms_two_word.csv", header = T)
+lda_one_word_2 <- read.csv("C:/Users/Rachel Youngquist/Documents/GitHub/CapstoneProject2/lda_one_word.csv", header = T)
+top_terms_one_word_2 <- read.csv("C:/Users/Rachel Youngquist/Documents/GitHub/CapstoneProject2/top_terms_one_word.csv", header = T)
+lda_two_word_2 <- read.csv("C:/Users/Rachel Youngquist/Documents/GitHub/CapstoneProject2/lda_two_word.csv", header = T)
+top_terms_two_word_2 <- read.csv("C:/Users/Rachel Youngquist/Documents/GitHub/CapstoneProject2/top_terms_two_word.csv", header = T)
 
 ###########################
 ## THIS FOREST IS RANDOM ##
