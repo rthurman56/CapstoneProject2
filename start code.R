@@ -265,6 +265,8 @@ top_terms_one_word <- topics %>%
   arrange(topic, -beta)
 top_terms_one_word
 
+## name the topics for one word here
+
 top_terms_one_word %>%
   mutate(term = reorder(term, beta)) %>%
   ggplot(aes(term, beta, fill = factor(topic))) +
@@ -699,13 +701,8 @@ frow1 <- fluidRow(
   box(title = "Intervention Models and Overall Status"
       ,solidHeader = TRUE 
       ,collapsible = TRUE
-      ,width = 6
-      ,plotOutput("plot1", height = 250)),
-  box(title = "Intervention Types and Overall Status"
-      ,solidHeader = TRUE 
-      ,collapsible = TRUE
-      ,width = 6
-      ,plotOutput("plot2", height = 250))
+      ,width = 12
+      ,plotOutput("plot1", height = 250))
 )
 
 frow2 <- fluidRow(
@@ -747,6 +744,15 @@ frow5 <- fluidRow(
       ,plotOutput('plot7', height = 250))
 )
 
+frow6 <- fluidRow(
+  box(title = 'Intervention Types and Overall Status'
+      ,solidHeader = TRUE
+      ,collapsible = TRUE
+      ,width = 12
+      ,plotOutput('plot2', height = 250))
+)
+
+
 menus <-  sidebarMenu(
   menuItem("Main Dashboard", tabName = "dashboard", icon = icon("dashboard")), #see tabItem below
   menuItem("Enrollment Level Plots", tabName = "enrollmentplots", icon = icon("dashboard")) #see tabItem below
@@ -777,7 +783,8 @@ ui <- dashboardPage(skin = "blue",
                       tabItems(
                         tabItem(tabName = "dashboard",
                                 h2("dashboard tab content"),
-                                frow1
+                                frow1,
+                                frow6
                         ),
                         tabItem(tabName = "enrollmentplots",
                                 h2("Enrollment Levels"),
@@ -824,7 +831,7 @@ server <- function(input, output) {
       geom_bar(position = 'fill') + labs(x = 'Enrollment', y = 'Proportion', fill = 'Overall Status')
   })
   output$plot6 <- renderPlot({
-    top_terms_oneword_2 %>%
+    top_terms_one_word_2 %>%
       mutate(term = reorder(term, beta)) %>%
       ggplot(aes(term, beta, fill = factor(topic))) +
       geom_col(show.legend = FALSE) +
@@ -832,7 +839,7 @@ server <- function(input, output) {
       coord_flip() +   theme(axis.text.x = element_text(angle = 45, hjust = 1))
   })
   output$plot7 <- renderPlot({
-    top_terms_twoword_2 %>%
+    top_terms_two_word_2 %>%
       mutate(term = reorder(term, beta)) %>%
       ggplot(aes(term, beta, fill = factor(topic))) +
       geom_col(show.legend = FALSE) +
