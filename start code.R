@@ -258,14 +258,14 @@ topics_one_word <- tidy(lda, matrix = "beta")
 write.csv( topics_one_word, "C:/Users/Rachel Youngquist/Documents/GitHub/CapstoneProject2/topics_two_word.csv")
 
 #get a small data frame of the top 10 descriptions for each topic
-top_terms <- topics %>%
+top_terms_one_word <- topics %>%
   group_by(topic) %>%
   top_n(5, beta) %>%
   ungroup() %>%
   arrange(topic, -beta)
-top_terms
+top_terms_one_word
 
-top_terms %>%
+top_terms_one_word %>%
   mutate(term = reorder(term, beta)) %>%
   ggplot(aes(term, beta, fill = factor(topic))) +
   geom_col(show.legend = FALSE) +
