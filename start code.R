@@ -1,3 +1,9 @@
+## Project 2 -- Group 4
+## Claire Peterson, Kaleb Schulz, Tanner Thurman, and Rachel Youngquist
+
+install.packages(c('ggplot2', 'ggmosaic', 'RColorBrewer', 'dplyr', 'tidytext', 'topicmodels', 'reshape2', 
+                 'shinydashboard', 'shiny', 'randomForest', 'caret', 'rpart', 'rpart.plot'))
+
 library(ggplot2) #for plotting
 library(ggmosaic) #for mosaic plots
 library(RColorBrewer) #for custom color palettes
