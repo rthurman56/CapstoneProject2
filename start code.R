@@ -459,7 +459,9 @@ str(lda_two_word)
 #write files to csv for a speedy process
 lda_two_word <- write.csv(lda_two_word, "C:/Users/Rachel Youngquist/Documents/GitHub/CapstoneProject2/lda_two_word.csv")
 top_terms_two_word <- write.csv(top_terms_two_word, "C:/Users/Rachel Youngquist/Documents/GitHub/CapstoneProject2/top_terms_two_word.csv")
-### wrote file to csv, will now read it in from local computer
+#wrote file to csv, will now read it in from local computer
+#added a "_2" to file name to differentiate from created above
+#in case different computers generate different data
 lda_one_word_2 <- read.csv("C:/Users/Rachel Youngquist/Documents/GitHub/CapstoneProject2/lda_one_word.csv", header = T)
 top_terms_one_word_2 <- read.csv("C:/Users/Rachel Youngquist/Documents/GitHub/CapstoneProject2/top_terms_one_word.csv", header = T)
 lda_two_word_2 <- read.csv("C:/Users/Rachel Youngquist/Documents/GitHub/CapstoneProject2/lda_two_word.csv", header = T)
@@ -470,11 +472,10 @@ top_terms_two_word_2 <- read.csv("C:/Users/Rachel Youngquist/Documents/GitHub/Ca
 ###########################
 
 #merge lab_lda with current_data to make one for random forest use
-lab_lda = lab_lda[,-c(1, 13:28)]
-one_word_lda= read.csv(choose.files(), header=TRUE)
-one_word_lda= subset(one_word_lda[-c(1,13:29)])
-data_lda <- merge(current_data, lab_lda, by = 'nct_id', all.x = T, all.y = T)
-data_lda = merge(data_lda, one_word_lda, by = 'nct_id', all.x = T, all.y = T)
+lda_two_word_2 = lda_two_word_2[,-c(1, 13:28)]
+lda_one_word_2= subset(lda_one_word_2[-c(1,13:29)])
+data_lda <- merge(current_data, lda_two_word_2, by = 'nct_id', all.x = T, all.y = T)
+data_lda = merge(data_lda, lda_one_word_2, by = 'nct_id', all.x = T, all.y = T)
 
 
 data_lda$allocation <- as.factor(data_lda$allocation.x)
