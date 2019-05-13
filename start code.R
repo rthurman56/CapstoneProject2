@@ -836,7 +836,7 @@ server <- function(input, output) {
   })
   # these last two (plot 6 and plot 7) should work once the data is correct
   output$plot6 <- renderPlot({
-    top_terms_one_word_2 %>%
+    top_terms_one_word %>%
       mutate(term = reorder(term, beta)) %>%
       ggplot(aes(term, beta, fill = factor(topic))) +
       geom_col(show.legend = FALSE) +
@@ -844,7 +844,7 @@ server <- function(input, output) {
       coord_flip() +   theme(axis.text.x = element_text(angle = 45, hjust = 1))
   })
   output$plot7 <- renderPlot({
-    top_terms_two_word_2 %>%
+    top_terms_two_word %>%
       mutate(term = reorder(term, beta)) %>%
       ggplot(aes(term, beta, fill = factor(topic))) +
       geom_col(show.legend = FALSE) +
