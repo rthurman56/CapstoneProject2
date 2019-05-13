@@ -586,6 +586,7 @@ TunedForest9 = randomForest(status_bin ~ phasef + enrollment_level + has_dmc + a
 ####################
 ## DASHBOARD TIME ##
 ####################
+
 frow1 <- fluidRow(
   box(title = "Intervention Models and Overall Status"
       ,solidHeader = TRUE 
@@ -621,33 +622,22 @@ frow3 <- fluidRow(
       ,plotOutput("plot5", height = 250)) 
 )
 
-#choose image file
-#outputID <- choose.files()  
-
-#frow4 <- fluidRow(
-# box(title = "LDA Topics"
-#    ,solidHeader = TRUE 
-#   ,collapsible = TRUE
-#  ,width = 12
-# ,imageOutput(outputID, width = "100%", height = "400px", inline = FALSE))
-#)
-
 
 frow4 <- fluidRow(
-  box(title = 'LDA - 2 topics'
+  box(title = 'LDA - 1 topic'
       ,solidHeader = TRUE
       ,collapsible = TRUE
       ,width = 12
       ,plotOutput('plot6', height = 250))
 )
 
-# frow5 <- fluidRow(
-#   box(title = 'LDA - 1 topic'
-#       ,solidHeader = TRUE
-#       ,collapsible = TRUE
-#       ,width = 12
-#       ,plotOutput('plot6', height = 250))
-# )
+frow5 <- fluidRow(
+  box(title = 'LDA - 2 topics'
+      ,solidHeader = TRUE
+      ,collapsible = TRUE
+      ,width = 12
+      ,plotOutput('plot7', height = 250))
+)
 
 menus <-  sidebarMenu(
   menuItem("Main Dashboard", tabName = "dashboard", icon = icon("dashboard")), #see tabItem below
@@ -689,8 +679,8 @@ ui <- dashboardPage(skin = "blue",
                         ),
                         tabItem(tabName = 'lda',
                                 h2("LDA Topics"),
-                                frow4
-                                #,frow5
+                                frow4,
+                                frow5
 
                                 )
                         )))
@@ -724,6 +714,23 @@ server <- function(input, output) {
   output$plot5 <- renderPlot({
     ggplot(data = current_data, aes(x = enrollment_level, fill = overall_status)) +
       geom_bar(position = 'fill') + labs(x = 'Enrollment', y = 'Proportion', fill = 'Overall Status')
+  })
+  output$plot6 <- renderPlot({
+    top_terms_oneword_2 %>%
+      mutate(term = reorder(term, beta)) %>%
+      ggplot(aes(term, beta, fill = factor(topic))) +
+      geom_col(show.legend = FALSE) +
+      facet_wrap(~ topic, scales = "free") +
+      coord_flip() +   theme(axis.text.x = element_text(angle = 45, hjust = 1))
+  })
+  output$plot7 <- renderPlot({
+    top_terms_twoword_2 %>%
+      mutate(term = reorder(term, beta)) %>%
+      ggplot(aes(term, beta, fill = factor(topic))) +
+      geom_col(show.legend = FALSE) +
+      facet_wrap(~ topic, scales = "free") +
+      coord_flip() +   theme(axis.text.x = element_text(angle = 45, hjust = 1))
+    
   })
   
 }
