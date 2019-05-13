@@ -452,21 +452,23 @@ str(lab_lda)
 lda_two_word <- write.csv(lda_two_word, "C:/Users/Rachel Youngquist/Documents/GitHub/CapstoneProject2/lda_two_word.csv")
 top_terms_two_word <- write.csv(top_terms_two_word, "C:/Users/Rachel Youngquist/Documents/GitHub/CapstoneProject2/top_terms_two_word.csv")
 ### wrote file to csv, will now read it in from local computer
+
 lda_one_word <- read.csv("C:/Users/Rachel Youngquist/Documents/GitHub/CapstoneProject2/lda_one_word.csv", header = T)
 top_terms_one_word <- read.csv("C:/Users/Rachel Youngquist/Documents/GitHub/CapstoneProject2/top_terms_one_word.csv", header = T)
 lda_two_word <- read.csv("C:/Users/Rachel Youngquist/Documents/GitHub/CapstoneProject2/lda_two_word.csv", header = T)
 top_terms_two_word <- read.csv("C:/Users/Rachel Youngquist/Documents/GitHub/CapstoneProject2/top_terms_two_word.csv", header = T)
 
 ###########################
-## THIS FOREST IS RANDOM ##
+#### BEST TOPIC COLUMN ####
 ###########################
 
 #merge lab_lda with current_data to make one for random forest use
-lab_lda = lab_lda[,-c(1, 13:28)]
-one_word_lda= read.csv(choose.files(), header=TRUE)
+
+lda_two_word = lab_lda[,-c(1, 13:28)]
 one_word_lda= subset(one_word_lda[-c(1,13:29)])
+
 data_lda <- merge(current_data, lab_lda, by = 'nct_id', all.x = T, all.y = T)
-data_lda = merge(data_lda, one_word_lda, by = 'nct_id', all.x = T, all.y = T)
+data_lda <- merge(data_lda, one_word_lda, by = 'nct_id', all.x = T, all.y = T)
 
 
 data_lda$allocation <- as.factor(data_lda$allocation.x)
@@ -477,6 +479,34 @@ data_lda$intervention_type <- as.factor(data_lda$intervention_type)
 data_lda$status_bin = as.factor(data_lda$status_bin)
 
 
+
+for(i in 1:length(data_lda$nct_id)){
+  maxOneWord = -1
+  maxTwoWord = -1
+  for(j in 1:length(data_lda)){
+    if(j > 18 & j < 29){
+      if(data_lda[i,j] > maxTwoWord){
+        maxTwoWord <- data_lda[i,j]
+        maxTwoCol <- j
+      }
+    }
+    else if(j > 28 & j < 39){
+      if(data_lda[i,j] > maxOneWord){
+        maxOneWord <- data_lda[i,j]
+        maxOneCol <- j
+      }
+    }
+  }
+  data_lda$OneWordTopic[i] <- colnames(data_lda)[maxOneCol]
+  data_lda$TwoWordTopic[i] <- colnames(data_lda)[maxTwoCol]
+}
+
+data_lda$OneWordTopic <- as.factor(data_lda$OneWordTopic)
+data_lda$TwoWordTopic <- as.factor(data_lda$TwoWordTopic)
+
+###########################
+## THIS FOREST IS RANDOM ##
+###########################
 
 smp_sz <- floor(nrow(data_lda)*.4)
 
@@ -675,13 +705,13 @@ data_lda <- na.omit(data_lda)
 data_lda$intervention_type <- relevel(data_lda$intervention_type, ref = 7)
 data_lda$phasef <- relevel(data_lda$phasef, ref = 4)
 
-model1 <- glm(status_bin ~ phasef + enrollment_level + intervention_type + HeartHealth
-              + TumorGrowth + Hepatitis.StemCell + Cancer + PostCare + BrainStudy + Diabetes.Types
-              + DrugDosage + PhysiologicalEffects + TrialExecution, data = data_lda, family = binomial(link = logit))
-
-model2 <- glm(status_bin ~ phasef + enrollment_level + intervention_type + HeartHealth
+model1 <- glm(status_bin ~ enrollment_level + Cancer.y + intervention_type + Care + DrugDosage.y, data = data_lda, family = binomial(link = logit))
+model2 <- glm(status_bin ~ phasef + enrollment_level + has_dmc + allocation + startMonth 
+              + startYear + primary_purpose + intervention_model + intervention_type + HeartHealth
               + TumorGrowth + Hepatitis.StemCell + Cancer.x + PostCare + BrainStudy + Diabetes.Types
-              + DrugDosage.x + TrialExecution.x, data = data_lda, family = binomial(link = logit))
+              + DrugDosage.x + PhysiologicalEffects + TrialExecution.x + BrainScan.Drug + Care + TrialExecution.y 
+              + Cancer.y + BloodDieseasStudy + QulaityofLife + Surgery + DrugDosage.y + Diabetes + BabyVaccine, data = data_lda, family = binomial(link = logit))
+
 summary(model1)
 summary(model2)
 
