@@ -271,7 +271,7 @@ top_terms_one_word <- topics_one_word %>%
   arrange(topic, -beta)
 top_terms_one_word
 
-top_terms_one_word$topic <- factor(top_terms_two_word$topic,
+top_terms_one_word$topic <- factor(top_terms_one_word$topic,
                                    labels = c("BrainScan/Drug", "Care", "TrialExecution", "Cancer", "BloodDiseaseStudy", " QualityofLife", "Surgery", "DrugDosage", " Diabetes ", " BabyVaccine "))
 
 top_terms_one_word %>%
