@@ -701,13 +701,8 @@ frow1 <- fluidRow(
   box(title = "Intervention Models and Overall Status"
       ,solidHeader = TRUE 
       ,collapsible = TRUE
-      ,width = 6
-      ,plotOutput("plot1", height = 250)),
-  box(title = "Intervention Types and Overall Status"
-      ,solidHeader = TRUE 
-      ,collapsible = TRUE
-      ,width = 6
-      ,plotOutput("plot2", height = 250))
+      ,width = 12
+      ,plotOutput("plot1", height = 250))
 )
 
 frow2 <- fluidRow(
@@ -749,6 +744,15 @@ frow5 <- fluidRow(
       ,plotOutput('plot7', height = 250))
 )
 
+frow6 <- fluidRow(
+  box(title = 'Intervention Types and Overall Status'
+      ,solidHeader = TRUE
+      ,collapsible = TRUE
+      ,width = 12
+      ,plotOutput('plot2', height = 250))
+)
+
+
 menus <-  sidebarMenu(
   menuItem("Main Dashboard", tabName = "dashboard", icon = icon("dashboard")), #see tabItem below
   menuItem("Enrollment Level Plots", tabName = "enrollmentplots", icon = icon("dashboard")) #see tabItem below
@@ -779,7 +783,8 @@ ui <- dashboardPage(skin = "blue",
                       tabItems(
                         tabItem(tabName = "dashboard",
                                 h2("dashboard tab content"),
-                                frow1
+                                frow1,
+                                frow6
                         ),
                         tabItem(tabName = "enrollmentplots",
                                 h2("Enrollment Levels"),
