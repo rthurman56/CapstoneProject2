@@ -252,7 +252,11 @@ dtm <- tokens_count %>%
 lda <- LDA(dtm, k = 10, control = list(seed = 1234))
 
 
-topics <- tidy(lda, matrix = "beta")
+topics_one_word <- tidy(lda, matrix = "beta")
+
+#writing topics to csv to increase run time
+write.csv( topics_one_word, "C:/Users/Rachel Youngquist/Documents/GitHub/CapstoneProject2/topics_two_word.csv")
+
 #get a small data frame of the top 10 descriptions for each topic
 top_terms <- topics %>%
   group_by(topic) %>%
@@ -267,6 +271,9 @@ top_terms %>%
   geom_col(show.legend = FALSE) +
   facet_wrap(~ topic, scales = "free") +
   coord_flip()
+
+#writing top terms to csv to increase run time
+write.csv(top_terms_one_word, "C:/Users/Rachel Youngquist/Documents/GitHub/CapstoneProject2/top_terms_one_word.csv")
 
 #per-document-per-topic probabilities
 documents <- tidy(lda, matrix = "gamma")
@@ -290,14 +297,9 @@ tokens_tf_idf <- tokens_clean %>%
   arrange(desc(tf_idf))
 head(tokens_tf_idf)
 
-#creating one word dataframes to reuse code for two words
-one_tokens <- tokens
-one_tokens_clean <- tokens_clean
-one_tokens_count   <- tokens_count
-one_lab_lda <- lab_lda
-one_topics <- topics
-one_top_terms <- top_terms
-one_tokens_tf_idf <- tokens_tf_idf
+#write files to csv for a speedy process
+lda_one_word <- write.csv(lda_one_word, "C:/Users/Rachel Youngquist/Documents/GitHub/CapstoneProject2/lda_one_word.csv")
+top_terms_one_word <- write.csv(top_terms_one_word, "C:/Users/Rachel Youngquist/Documents/GitHub/CapstoneProject2/top_terms_one_word.csv")
 
 ######################
 #two word text mining#
@@ -411,27 +413,31 @@ dtm <- tokens_count %>%
 #lda
 lda <- LDA(dtm, k = 10, control = list(seed = 1234))
 
-topics <- tidy(lda, matrix = "beta")
-# write csv ^ here
+topics_two_word <- tidy(lda, matrix = "beta")
 
+#writing topics to csv to increase run time
+write.csv( topics_two_word, "C:/Users/Rachel Youngquist/Documents/GitHub/CapstoneProject2/topics_two_word.csv")
 
 #get a small data frame of the top 10 descriptions for each topic
-top_terms <- topics %>%
+top_terms_two_word <- topics %>%
   group_by(topic) %>%
   top_n(5, beta) %>%
   ungroup() %>%
   arrange(topic, -beta)
-top_terms
+top_terms_two_word
 
-top_terms$topic <- factor(top_terms$topic,
+top_terms_two_word$topic <- factor(top_terms_two_word$topic,
                           labels = c("HeartHealth", "TumorGrowth", "Hepatitis/StemCell", "Cancer", "PostCare", "BrainStudy", "Diabetes/Types", "DrugDosage", "PhysiologicalEffects", "TrialExecution"))
 
-top_terms %>%
+top_terms_two_word %>%
   mutate(term = reorder(term, beta)) %>%
   ggplot(aes(term, beta, fill = factor(topic))) +
   geom_col(show.legend = FALSE) +
   facet_wrap(~ topic, scales = "free") +
   coord_flip() +   theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+#writing top terms to csv to increase run time
+write.csv(top_terms_two_word, "C:/Users/Rachel Youngquist/Documents/GitHub/CapstoneProject2/top_terms_two_word.csv")
 
 #per-document-per-topic probabilities
 documents <- tidy(lda, matrix = "gamma")
@@ -443,11 +449,13 @@ lab_lda <- merge(documents_w, current_data, by="nct_id", all = T)
 str(lab_lda)
 
 #write files to csv for a speedy process
-lab_lda <- write.csv(lab_lda, choose.files())
-top_terms <- write.csv(top_terms, choose.files())
+lda_two_word <- write.csv(lda_two_word, "C:/Users/Rachel Youngquist/Documents/GitHub/CapstoneProject2/lda_two_word.csv")
+top_terms_two_word <- write.csv(top_terms_two_word, "C:/Users/Rachel Youngquist/Documents/GitHub/CapstoneProject2/top_terms_two_word.csv")
 ### wrote file to csv, will now read it in from local computer
-lab_lda <- read.csv(file.choose(), header = T)
-top_terms <- read.csv(file.choose(), header = T)
+lda_one_word <- read.csv("C:/Users/Rachel Youngquist/Documents/GitHub/CapstoneProject2/lda_one_word.csv", header = T)
+top_terms_one_word <- read.csv("C:/Users/Rachel Youngquist/Documents/GitHub/CapstoneProject2/top_terms_one_word.csv", header = T)
+lda_two_word <- read.csv("C:/Users/Rachel Youngquist/Documents/GitHub/CapstoneProject2/lda_two_word.csv", header = T)
+top_terms_two_word <- read.csv("C:/Users/Rachel Youngquist/Documents/GitHub/CapstoneProject2/top_terms_two_word.csv", header = T)
 
 ###########################
 ## THIS FOREST IS RANDOM ##
