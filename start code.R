@@ -723,7 +723,7 @@ frow3 <- fluidRow(
 )
 
 frow4 <- fluidRow(
-  box(title = 'LDA - 1 topic'
+  box(title = 'LDA - 1 word'
       ,solidHeader = TRUE
       ,collapsible = TRUE
       ,width = 12
@@ -731,7 +731,7 @@ frow4 <- fluidRow(
 )
 
 frow5 <- fluidRow(
-  box(title = 'LDA - 2 topics'
+  box(title = 'LDA - 2 words'
       ,solidHeader = TRUE
       ,collapsible = TRUE
       ,width = 12
