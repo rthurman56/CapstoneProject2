@@ -701,8 +701,13 @@ data_lda <- na.omit(data_lda)
 #Make the "Drug" level the reference level since it is the most prominent
 data_lda$intervention_type <- relevel(data_lda$intervention_type, ref = 7)
 data_lda$phasef <- relevel(data_lda$phasef, ref = 4)
+data_lda$OneWordTopic <- relevel(data_lda$OneWordTopic, ref = 5)
+data_lda$TwoWordTopic <- relevel(data_lda$TwoWordTopic, ref = 9)
 
-model1 <- glm(status_bin ~ enrollment_level + Cancer.y + intervention_type + Care + DrugDosage.y, data = data_lda, family = binomial(link = logit))
+model1 <- glm(status_bin ~ enrollment_level + intervention_type + OneWordTopic + TwoWordTopic, 
+              data = data_lda, 
+              family = binomial(link = logit))
+
 model2 <- glm(status_bin ~ phasef + enrollment_level + has_dmc + allocation + startMonth 
               + startYear + primary_purpose + intervention_model + intervention_type + HeartHealth
               + TumorGrowth + Hepatitis.StemCell + Cancer.x + PostCare + BrainStudy + Diabetes.Types
