@@ -464,10 +464,10 @@ top_terms_two_word <- read.csv("C:/Users/Rachel Youngquist/Documents/GitHub/Caps
 
 #merge lab_lda with current_data to make one for random forest use
 
-lda_two_word <- lab_lda[,-c(1, 13:28)]
-lda_one_word <- subset(one_word_lda[-c(1,13:29)])
+lda_two_word <- lda_two_word[,-c(1, 13:28)]
+lda_one_word <- subset(lda_one_word[-c(1,13:29)])
 
-data_lda <- merge(current_data, lab_lda, by = 'nct_id', all.x = T, all.y = T)
+data_lda <- merge(current_data, lda_two_word, by = 'nct_id', all.x = T, all.y = T)
 data_lda <- merge(data_lda, lda_one_word, by = 'nct_id', all.x = T, all.y = T)
 
 data_lda$allocation <- as.factor(data_lda$allocation.x)
@@ -714,11 +714,15 @@ model2 <- glm(status_bin ~ phasef + enrollment_level + has_dmc + allocation + st
               + DrugDosage.x + PhysiologicalEffects + TrialExecution.x + BrainScan.Drug + Care + TrialExecution.y 
               + Cancer.y + BloodDieseasStudy + QulaityofLife + Surgery + DrugDosage.y + Diabetes + BabyVaccine, data = data_lda, family = binomial(link = logit))
 
+model3 <- glm(status_bin ~ enrollment_level + intervention_type + OneWordTopic + TwoWordTopic, 
+              data = data_lda, 
+              family = binomial(link = logit))
 summary(model1)
 summary(model2)
+summary(model3)
 
 #exponentiate coefficients for interpretations
-round(exp(coef(model1)), 3)
+round(exp(coef(model3)), 3)
 
 #heart health: cardiovascular health (CV) Hypertension (HTN)
 #Hepatitis.StemCell: Hepatitis.  These two don't have anything to do with one another.
