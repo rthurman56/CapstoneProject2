@@ -92,7 +92,12 @@ current_data$phase[current_data$phase=='Early Phase 1']='Phase 1'
 current_data$phase[current_data$phase=='Phase 1/Phase 2']='Phase 1'
 current_data$phase[current_data$phase=='Phase 2/Phase 3']='Phase 2'
 
+# reordering phases
 current_data$phasef <- factor(current_data$phase, levels = c('Phase 1', 'Phase 2', 'Phase 3', 'Phase 4', 'N/A'))
+
+# reordering intervention type
+# later on, we wanted to have our mosaic plot in order of termination rates so we added this (created new column that is only being used for visualizations)
+current_data$intervention_type_factor <- factor(current_data$intervention_type, levels = c('Diagnostic Test', 'Behavioral', 'Dietary Supplement', 'Other', 'Not Listed', 'Genetic', 'Biological', 'Procedure', 'Device', 'Drug', 'Radiation'))
 
 
 ## clean allocation
@@ -104,6 +109,8 @@ current_data$allocation[current_data$allocation == ''] <- 'Not Listed'
 current_data$intervention_model[current_data$intervention_model == ''] <- 'Not Listed' 
 ## rename NA values in intervention_type to 'Not Listed'
 current_data$intervention_type[is.na(current_data$intervention_type)] <- 'Not Listed' 
+## rename NA values in intervention_type_factor to 'Not Listed'
+current_data$intervention_type_factor[is.na(current_data$intervention_type_factor)] <- 'Not Listed' 
 ## rename blank values in primary_purpose to 'Not Listed'
 current_data$primary_purpose[current_data$primary_purpose == ''] <- 'Not Listed' 
 ## rename blank values in has_dmc to 'Not Listed'
@@ -198,7 +205,7 @@ ggplot(data = current_data) + geom_mosaic(aes(x = product(overall_status, interv
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 # mosaic plot of Intervention Type and Status
-ggplot(data = current_data) + geom_mosaic(aes(x = product(overall_status, intervention_type), fill = overall_status)) + 
+ggplot(data = current_data) + geom_mosaic(aes(x = product(overall_status, intervention_type_factor), fill = overall_status)) + 
   labs(x = 'Intervention Type', y = 'Overall Status', fill = 'Overall Status') + ggtitle("Intervention Type and Overall Status") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
@@ -752,31 +759,14 @@ menus <-  sidebarMenu(
   menuItem("Enrollment Level Plots", tabName = "enrollmentplots", icon = icon("dashboard")) #see tabItem below
   ,menuItem("LDA", tabName = 'lda', icon = icon('dashboard'))
 )
-# Attempt to filter by Enrollment level -- only applies to the first tab
-checkboxes <- checkboxGroupInput("checkGroup",
-                                 h3("Enrollment Level:"),
-                                 choices = list("0-21" ,
-                                                "22-43" ,
-                                                "44-80" ,
-                                                "81-199" ,
-                                                "200-999" ,
-                                                "1000+"),
-                                 selected = c("(-1,21]" ,
-                                              "(21,43]" ,
-                                              "(43,80]" ,
-                                              "(80,199]" ,
-                                              "(199-999]" ,
-                                              "(999,6.71e+07]" ))
 
 ui <- dashboardPage(skin = "blue",
                     dashboardHeader(title = "Clinical Trials"),
-                    dashboardSidebar(
-                      checkboxes,
-                      menus),
+                    dashboardSidebar(menus),
                     dashboardBody(
                       tabItems(
                         tabItem(tabName = "dashboard",
-                                h2("dashboard tab content"),
+                                h2("Main Dashboard"),
                                 frow1,
                                 frow6
                         ),
@@ -794,17 +784,15 @@ ui <- dashboardPage(skin = "blue",
 
 
 server <- function(input, output) {
-  # current_data2 <- reactive({
-  # subset(current_data, enrollment_level %in% input$checkGroup)
-  # }) 
-  # if we get this working, then we should use current_data2() as the data for each plot in the server
   output$plot1 <- renderPlot({
     ggplot(data = current_data) + geom_mosaic(aes(x = product(overall_status, intervention_model), fill = overall_status)) + 
       labs(x = 'Intervention Model', y = 'Overall Status', fill = 'Overall Status') +
-      theme(axis.text.x = element_text(angle = 45, hjust = 1))
+      theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 18))
+    # axis.text.y
+    # legend.text
   })
   output$plot2 <- renderPlot({
-    ggplot(data = current_data) + geom_mosaic(aes(x = product(overall_status, intervention_type), fill = overall_status)) + 
+    ggplot(data = current_data) + geom_mosaic(aes(x = product(overall_status, intervention_type_factor), fill = overall_status)) + 
       labs(x = 'Intervention Type', y = 'Overall Status', fill = 'Overall Status') +
       theme(axis.text.x = element_text(angle = 45, hjust = 1))
   })
