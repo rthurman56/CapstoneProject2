@@ -177,9 +177,9 @@ ggplot(data = current_data, aes(x = phase, color = phase, fill = phase)) +
   geom_bar() + facet_wrap(~overall_status, scales ='free') + 
   labs(x = 'Phase', y = 'Count') + ggtitle("Completed/Terminated Trials by Phase")
 
-# stacked bar chart of each phase and their statuses (stacks)
+# stacked 100% bar chart of each phase and their statuses (stacks)
 ggplot(data = current_data, aes(x = phase, color = overall_status, fill = overall_status)) +
-  geom_bar() + labs(x = 'Phase', y = 'Count') + ggtitle("Phases with Overall Status")
+  geom_bar(position = "fill") + labs(x = 'Phase', y = 'Count') + ggtitle("Phases with Overall Status")
 
 # stacked bar chart of status with phases as stacks
 ggplot(data = current_data, aes(x = overall_status, color = phase, fill = phase)) +
@@ -713,20 +713,15 @@ frow2 <- fluidRow(
       ,solidHeader = TRUE 
       ,collapsible = TRUE
       ,width = 12
-      ,plotOutput("plot3", height = 250))
+      ,plotOutput("plot3", height = 500))
 )
 
 frow3 <- fluidRow(
-  box(title = "Distribution of Enrollment by Phase"
-      ,solidHeader = TRUE 
-      ,collapsible = TRUE
-      ,width = 6
-      ,plotOutput("plot4", height = 250)),
   box(title = "Enrollment Levels with Overall Status"
       ,solidHeader = TRUE 
       ,collapsible = TRUE
-      ,width = 6
-      ,plotOutput("plot5", height = 250)) 
+      ,width = 12
+      ,plotOutput("plot5", height = 500)) 
 )
 
 frow4 <- fluidRow(
@@ -753,6 +748,14 @@ frow6 <- fluidRow(
       ,plotOutput('plot2', height = 500))
 )
 
+frow7 <- fluidRow(
+  box(title = "Phases with Overall Status"
+      ,solidHeader = TRUE 
+      ,collapsible = TRUE
+      ,width = 12
+      ,plotOutput("plot4", height = 500))
+)
+
 # Menu to have 3 tabs
 menus <-  sidebarMenu(
   menuItem("Main Dashboard", tabName = "dashboard", icon = icon("dashboard")), #see tabItem below
@@ -768,13 +771,13 @@ ui <- dashboardPage(skin = "blue",
                         tabItem(tabName = "dashboard",
                                 h2("Main Dashboard"),
                                 frow1,
-                                frow6
+                                frow6,
+                                frow7
                         ),
                         tabItem(tabName = "enrollmentplots",
                                 h2("Enrollment Levels"),
                                 frow3,
                                 frow2
-                                #frow4
                         ),
                         tabItem(tabName = 'lda',
                                 h2("LDA Topics"),
@@ -802,9 +805,8 @@ server <- function(input, output) {
       theme(axis.text.x = element_text(angle = 45, hjust = 1))
   })
   output$plot4 <- renderPlot({
-    ggplot(data = current_data, aes(x = phase, fill = phase)) +
-      geom_bar() + facet_wrap(~overall_status, scales ='free') + 
-      labs(x = 'Phase', y = 'Count', fill = 'Phase')
+    ggplot(data = current_data, aes(x = phase, fill = overall_status)) +
+      geom_bar(position = "fill") + labs(x = 'Phase', y = 'Count', fill = 'Overall Status') 
   })
   output$plot5 <- renderPlot({
     ggplot(data = current_data, aes(x = enrollment_level, fill = overall_status)) +
