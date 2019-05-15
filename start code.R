@@ -132,6 +132,88 @@ ggplot(data = current_data) +
 ggplot(data = current_data) +
   geom_bar(aes(x = allocation, fill = enrollment_level), position = "fill")
 
+# Claire playing around with categoricals -- will be deleting most
+
+### Exploratory Plots with Intervention Model
+# Intervention Model counts by facet wrap on status
+ggplot(data = current_data, aes(x = intervention_model, color = intervention_model, fill = intervention_model)) +
+  geom_bar() + facet_wrap(~overall_status, scales ='free') + 
+  labs(x = 'Intervention Model', y = 'Count') + ggtitle("Completed/Terminated Trials by Intervention Model")
+
+# stacked bar chart of each intervention model and their statuses (stacks)
+ggplot(data = current_data, aes(x = intervention_model, color = overall_status, fill = overall_status)) +
+  geom_bar() + labs(x = 'Intervention Model', y = 'Count') + ggtitle("Intervention Models with Overall Status")
+
+# stacked bar chart of status with intervention models as stacks
+ggplot(data = current_data, aes(x = overall_status, color = intervention_model, fill = intervention_model)) +
+  geom_bar() + labs(x = 'Status', y = 'Count') + ggtitle("Status by Intervention Model")
+
+### Exploratory Plots with Intervention Type
+# Intervention Type counts by facet wrap on status
+ggplot(data = current_data, aes(x = intervention_type, color = intervention_type, fill = intervention_type)) +
+  geom_bar() + facet_wrap(~overall_status, scales ='free') + 
+  labs(x = 'Intervention Type', y = 'Count') + ggtitle("Completed/Terminated Trials by Intervention Type")
+
+# stacked bar chart of each intervention type and their statuses (stacks)
+ggplot(data = current_data, aes(x = intervention_type, color = overall_status, fill = overall_status)) +
+  geom_bar() + labs(x = 'Intervention Type', y = 'Count') + ggtitle("Intervention Types with Overall Status")
+
+# stacked bar chart of status with intervention types as stacks
+ggplot(data = current_data, aes(x = overall_status, color = intervention_type, fill = intervention_type)) +
+  geom_bar() + labs(x = 'Status', y = 'Count') + ggtitle("Status by Intervention Type")
+
+# get the completion rate by each of these #
+
+### Exploratory Plots with Enrollment Level
+# stacked bar chart of each enrollment level and their statuses (stacks)
+ggplot(data = current_data, aes(x = enrollment_level, fill = overall_status)) +
+  geom_bar(position = 'fill') + labs(x = 'Enrollment', y = 'Proportion', fill = 'Overall Status') + ggtitle("Enrollment Levels with Overall Status")
+
+### Exploratory Plots with Phase
+# consider grouping these back together and taking N/A out
+# Phase counts by facet wrap on status
+ggplot(data = current_data, aes(x = phase, color = phase, fill = phase)) +
+  geom_bar() + facet_wrap(~overall_status, scales ='free') + 
+  labs(x = 'Phase', y = 'Count') + ggtitle("Completed/Terminated Trials by Phase")
+
+# stacked bar chart of each phase and their statuses (stacks)
+ggplot(data = current_data, aes(x = phase, color = overall_status, fill = overall_status)) +
+  geom_bar() + labs(x = 'Phase', y = 'Count') + ggtitle("Phases with Overall Status")
+
+# stacked bar chart of status with phases as stacks
+ggplot(data = current_data, aes(x = overall_status, color = phase, fill = phase)) +
+  geom_bar() + labs(x = 'Phase', y = 'Count') + ggtitle("Status by Phase")
+
+### Exploratory Plots with Allocation
+# Allocation counts by facet wrap on status
+ggplot(data = current_data, aes(x = allocation, fill = allocation)) +
+  geom_bar() + facet_wrap(~overall_status, scales ='free') + 
+  labs(x = 'Allocation', y = 'Count') + ggtitle("Completed/Terminated Trials by Allocation")
+# stacked bar chart of each allocation and their statuses (stacks)
+ggplot(data = current_data, aes(x = allocation, fill = overall_status)) +
+  geom_bar() + labs(x = 'Allocation', y = 'Count') + ggtitle("Allocations with Overall Status")
+# stacked bar chart of status with allocations as stacks
+ggplot(data = current_data, aes(x = overall_status, fill = allocation)) +
+  geom_bar() + labs(x = 'Allocation', y = 'Count') + ggtitle("Status by Allocation")
+
+# end of claire playing around with categoricals #
+
+# mosaic plot of Intervention Model and Status
+ggplot(data = current_data) + geom_mosaic(aes(x = product(overall_status, intervention_model), fill = overall_status)) + 
+  labs(x = 'Intervention Model', y = 'Overall Status', fill = 'Overall Status') + ggtitle("Intervention Models and Overall Status") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+# mosaic plot of Intervention Type and Status
+ggplot(data = current_data) + geom_mosaic(aes(x = product(overall_status, intervention_type), fill = overall_status)) + 
+  labs(x = 'Intervention Type', y = 'Overall Status', fill = 'Overall Status') + ggtitle("Intervention Type and Overall Status") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+# Facet wrap by phase: shows the changing proportion of statuses by enrollment for each
+ggplot(data = current_data, aes(x = enrollment_level, fill = overall_status)) + geom_bar(position = 'fill') + 
+  facet_wrap(~phasef) + labs(x = 'Enrollment', y = 'Proportion', fill = 'Overall Status') + 
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + ggtitle('Interaction Between Phase and Enrollment')
+# showed to Follett
+
 #####################
 ## SOME LDA ACTION ##
 #####################
@@ -350,15 +432,15 @@ lda_one_word_2 <- read.csv("C:/Users/Rachel Youngquist/Documents/GitHub/Capstone
 lda_two_word_2 <- read.csv("C:/Users/Rachel Youngquist/Documents/GitHub/CapstoneProject2/lda_two_word.csv", header = T)
 
 ###########################
-## THIS FOREST IS RANDOM ##
+#### BEST TOPIC COLUMN ####
 ###########################
 
 #merge lab_lda with current_data to make one for random forest use
-lda_two_word_2 = lda_two_word_2[,-c(1, 13:28)]
-lda_one_word_2= subset(lda_one_word_2[-c(1,13:29)])
-data_lda <- merge(current_data, lda_two_word_2, by = 'nct_id', all.x = T, all.y = T)
-data_lda = merge(data_lda, lda_one_word_2, by = 'nct_id', all.x = T, all.y = T)
+lda_two_word <- lda_two_word[,-c(1, 13:28)]
+lda_one_word <- subset(lda_one_word[-c(1,13:29)])
 
+data_lda <- merge(current_data, lda_two_word, by = 'nct_id', all.x = T, all.y = T)
+data_lda <- merge(data_lda, lda_one_word, by = 'nct_id', all.x = T, all.y = T)
 
 data_lda$allocation <- as.factor(data_lda$allocation.x)
 data_lda$has_dmc <- as.factor(data_lda$has_dmc)
@@ -367,7 +449,33 @@ data_lda$intervention_model <- as.factor(data_lda$intervention_model)
 data_lda$intervention_type <- as.factor(data_lda$intervention_type)
 data_lda$status_bin = as.factor(data_lda$status_bin)
 
+for(i in 1:length(data_lda$nct_id)){
+  maxOneWord = -1
+  maxTwoWord = -1
+  for(j in 1:length(data_lda)){
+    if(j > 18 & j < 29){
+      if(data_lda[i,j] > maxTwoWord){
+        maxTwoWord <- data_lda[i,j]
+        maxTwoCol <- j
+      }
+    }
+    else if(j > 28 & j < 39){
+      if(data_lda[i,j] > maxOneWord){
+        maxOneWord <- data_lda[i,j]
+        maxOneCol <- j
+      }
+    }
+  }
+  data_lda$OneWordTopic[i] <- colnames(data_lda)[maxOneCol]
+  data_lda$TwoWordTopic[i] <- colnames(data_lda)[maxTwoCol]
+}
 
+data_lda$OneWordTopic <- as.factor(data_lda$OneWordTopic)
+data_lda$TwoWordTopic <- as.factor(data_lda$TwoWordTopic)
+
+###########################
+## THIS FOREST IS RANDOM ##
+###########################
 
 smp_sz <- floor(nrow(data_lda)*.4)
 
@@ -564,23 +672,19 @@ data_lda <- na.omit(data_lda)
 
 #Make the "Drug" level the reference level since it is the most prominent
 data_lda$intervention_type <- relevel(data_lda$intervention_type, ref = 7)
-data_lda$phasef <- relevel(data_lda$phasef, ref = 4)
+#set OneWordTopic ref level to Cancer.y since it has the most rows
+data_lda$OneWordTopic <- relevel(data_lda$OneWordTopic, ref = 5)
+#set TwoWordTopic ref level to Physiological Effects since it has the most rows
+data_lda$TwoWordTopic <- relevel(data_lda$TwoWordTopic, ref = 8)
 
-model1 <- glm(status_bin ~ phasef + enrollment_level + intervention_type + HeartHealth
-              + TumorGrowth + Hepatitis.StemCell + Cancer + PostCare + BrainStudy + Diabetes.Types
-              + DrugDosage + PhysiologicalEffects + TrialExecution, data = data_lda, family = binomial(link = logit))
+model1 <- glm(status_bin ~ enrollment_level + intervention_type + phasef + OneWordTopic + TwoWordTopic + enrollment_level*phasef, 
+              data = data_lda, 
+              family = binomial(link = logit))
 
-model2 <- glm(status_bin ~ phasef + enrollment_level + intervention_type + HeartHealth
-              + TumorGrowth + Hepatitis.StemCell + Cancer.x + PostCare + BrainStudy + Diabetes.Types
-              + DrugDosage.x + TrialExecution.x, data = data_lda, family = binomial(link = logit))
 summary(model1)
-summary(model2)
 
 #exponentiate coefficients for interpretations
 round(exp(coef(model1)), 3)
-
-#heart health: cardiovascular health (CV) Hypertension (HTN)
-#Hepatitis.StemCell: Hepatitis.  These two don't have anything to do with one another.
 
 ####################
 ## DASHBOARD TIME ##
@@ -589,6 +693,16 @@ round(exp(coef(model1)), 3)
 ## read in topics_one_word and topics_two_word here
 topics_one_word_2 <- read.csv("./topics_one_word.csv", header = T)
 topics_two_word_2 <- read.csv("./topics_two_word.csv", header = T)
+
+#status proportions by best one word topic
+ggplot(data = data_lda)+
+  geom_bar(aes(x = OneWordTopic, fill = overall_status), position = "fill")
+#status proportions by best two word topic
+ggplot(data = data_lda)+
+  geom_bar(aes(x = TwoWordTopic, fill = overall_status), position = "fill")
+#proportions of enrollment level by phase
+ggplot(data = data_lda)+
+  geom_bar(aes(x = phasef, fill = enrollment_level), position = "fill")
 
 #turns topics into top_terms and names topics
 #get a small data frame of the top 10 descriptions for each topic
