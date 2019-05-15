@@ -31,9 +31,9 @@ str(interventions)
 str(studies)
 
 
-##############################
-## DATA CLEANING AND MERGES ##
-##############################
+########################
+## DATA PREPROCESSING ##
+########################
 
 brief_summaries$nct_id=as.character(brief_summaries$nct_id)
 brief_summaries$description=as.character(brief_summaries$description)
@@ -76,12 +76,7 @@ colnames(current_data)[colnames(current_data)=="x"] <- "intervention_type"
 current_data$status_bin <- 1 #setting it always equal to 1
 current_data$status_bin[current_data$overall_status == 'Completed'] <- 0 #when trial was completed, set to 0
 
-# 1st: 0-21,     26,899
-# 2nd: 22-43,    27,459
-# 3rd: 44-80,    26,049
-# 4th: 81-199,   26,686
-# 5th: 200-999,  26,651
-# 6th: 1000-end,  7,947
+# 1st: 3,  7,947
 
 # create levels of enrollment
 current_data$enrollment_level <- cut(current_data$enrollment, c(-1,21,43,80,199,999,67128927))
@@ -118,105 +113,9 @@ current_data$primary_purpose[current_data$primary_purpose == ''] <- 'Not Listed'
 current_data$has_dmc <- as.character(current_data$has_dmc)
 current_data$has_dmc[is.na(current_data$has_dmc)] <- 'Not Listed' 
 
-
-#######################
-## EXPLORATORY PLOTS ##
-#######################
-
-ggplot(data = current_data) +
-  geom_bar(aes(x = intervention_model, fill = enrollment_level))
-
-ggplot(data = current_data) +
-  geom_bar(aes(x = overall_status, fill = enrollment_level), position = "fill")
-
-ggplot(data = current_data) +
-  geom_bar(aes(x = allocation, fill = enrollment_level), position = "fill")
-
-# Claire playing around with categoricals -- will be deleting most
-
-### Exploratory Plots with Intervention Model
-# Intervention Model counts by facet wrap on status
-ggplot(data = current_data, aes(x = intervention_model, color = intervention_model, fill = intervention_model)) +
-  geom_bar() + facet_wrap(~overall_status, scales ='free') + 
-  labs(x = 'Intervention Model', y = 'Count') + ggtitle("Completed/Terminated Trials by Intervention Model")
-
-# stacked bar chart of each intervention model and their statuses (stacks)
-ggplot(data = current_data, aes(x = intervention_model, color = overall_status, fill = overall_status)) +
-  geom_bar() + labs(x = 'Intervention Model', y = 'Count') + ggtitle("Intervention Models with Overall Status")
-
-# stacked bar chart of status with intervention models as stacks
-ggplot(data = current_data, aes(x = overall_status, color = intervention_model, fill = intervention_model)) +
-  geom_bar() + labs(x = 'Status', y = 'Count') + ggtitle("Status by Intervention Model")
-
-### Exploratory Plots with Intervention Type
-# Intervention Type counts by facet wrap on status
-ggplot(data = current_data, aes(x = intervention_type, color = intervention_type, fill = intervention_type)) +
-  geom_bar() + facet_wrap(~overall_status, scales ='free') + 
-  labs(x = 'Intervention Type', y = 'Count') + ggtitle("Completed/Terminated Trials by Intervention Type")
-
-# stacked bar chart of each intervention type and their statuses (stacks)
-ggplot(data = current_data, aes(x = intervention_type, color = overall_status, fill = overall_status)) +
-  geom_bar() + labs(x = 'Intervention Type', y = 'Count') + ggtitle("Intervention Types with Overall Status")
-
-# stacked bar chart of status with intervention types as stacks
-ggplot(data = current_data, aes(x = overall_status, color = intervention_type, fill = intervention_type)) +
-  geom_bar() + labs(x = 'Status', y = 'Count') + ggtitle("Status by Intervention Type")
-
-# get the completion rate by each of these #
-
-### Exploratory Plots with Enrollment Level
-# stacked bar chart of each enrollment level and their statuses (stacks)
-ggplot(data = current_data, aes(x = enrollment_level, fill = overall_status)) +
-  geom_bar(position = 'fill') + labs(x = 'Enrollment', y = 'Proportion', fill = 'Overall Status') + ggtitle("Enrollment Levels with Overall Status")
-
-### Exploratory Plots with Phase
-# consider grouping these back together and taking N/A out
-# Phase counts by facet wrap on status
-ggplot(data = current_data, aes(x = phase, color = phase, fill = phase)) +
-  geom_bar() + facet_wrap(~overall_status, scales ='free') + 
-  labs(x = 'Phase', y = 'Count') + ggtitle("Completed/Terminated Trials by Phase")
-
-# stacked bar chart of each phase and their statuses (stacks)
-ggplot(data = current_data, aes(x = phase, color = overall_status, fill = overall_status)) +
-  geom_bar() + labs(x = 'Phase', y = 'Count') + ggtitle("Phases with Overall Status")
-
-# stacked bar chart of status with phases as stacks
-ggplot(data = current_data, aes(x = overall_status, color = phase, fill = phase)) +
-  geom_bar() + labs(x = 'Phase', y = 'Count') + ggtitle("Status by Phase")
-
-### Exploratory Plots with Allocation
-# Allocation counts by facet wrap on status
-ggplot(data = current_data, aes(x = allocation, fill = allocation)) +
-  geom_bar() + facet_wrap(~overall_status, scales ='free') + 
-  labs(x = 'Allocation', y = 'Count') + ggtitle("Completed/Terminated Trials by Allocation")
-# stacked bar chart of each allocation and their statuses (stacks)
-ggplot(data = current_data, aes(x = allocation, fill = overall_status)) +
-  geom_bar() + labs(x = 'Allocation', y = 'Count') + ggtitle("Allocations with Overall Status")
-# stacked bar chart of status with allocations as stacks
-ggplot(data = current_data, aes(x = overall_status, fill = allocation)) +
-  geom_bar() + labs(x = 'Allocation', y = 'Count') + ggtitle("Status by Allocation")
-
-# end of claire playing around with categoricals #
-
-# mosaic plot of Intervention Model and Status
-ggplot(data = current_data) + geom_mosaic(aes(x = product(overall_status, intervention_model), fill = overall_status)) + 
-  labs(x = 'Intervention Model', y = 'Overall Status', fill = 'Overall Status') + ggtitle("Intervention Models and Overall Status") +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
-
-# mosaic plot of Intervention Type and Status
-ggplot(data = current_data) + geom_mosaic(aes(x = product(overall_status, intervention_type), fill = overall_status)) + 
-  labs(x = 'Intervention Type', y = 'Overall Status', fill = 'Overall Status') + ggtitle("Intervention Type and Overall Status") +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
-
-# Facet wrap by phase: shows the changing proportion of statuses by enrollment for each
-ggplot(data = current_data, aes(x = enrollment_level, fill = overall_status)) + geom_bar(position = 'fill') + 
-  facet_wrap(~phasef) + labs(x = 'Enrollment', y = 'Proportion', fill = 'Overall Status') + 
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + ggtitle('Interaction Between Phase and Enrollment')
-# showed to Follett
-
-#####################
-## SOME LDA ACTION ##
-#####################
+#########
+## LDA ##
+#########
 
 #text mining part
 tokens <- current_data %>% unnest_tokens(word, description)
@@ -295,9 +194,9 @@ head(tokens_tf_idf)
 #write files to csv for a speedy process
 write.csv(lda_one_word, "C:/Users/Rachel Youngquist/Documents/GitHub/CapstoneProject2/lda_one_word.csv")
 
-########################
-# TWO WORD TEXT MINING #
-########################
+################
+# LDA TWO WORD #
+################
 
 tokens <- current_data %>% unnest_tokens(word, description, token = "ngrams", n= 2)
 #see first few rows - note reach row is now a single description (token)
@@ -428,7 +327,7 @@ write.csv(lda_two_word, "C:/Users/Rachel Youngquist/Documents/GitHub/CapstonePro
 #wrote file to csv, will now read it in from local computer
 #added a "_2" to file name to differentiate from created above
 #in case different computers generate different data
-lda_one_word_2 <- read.csv("C:/Users/Rachel Youngquist/Documents/GitHub/CapstoneProject2/lda_one_word.csv", header = T)
+lda_one_word_2 <- read.csv("./lda_one_word.csv", header = T)
 lda_two_word_2 <- read.csv("C:/Users/Rachel Youngquist/Documents/GitHub/CapstoneProject2/lda_two_word.csv", header = T)
 
 ###########################
@@ -473,9 +372,9 @@ for(i in 1:length(data_lda$nct_id)){
 data_lda$OneWordTopic <- as.factor(data_lda$OneWordTopic)
 data_lda$TwoWordTopic <- as.factor(data_lda$TwoWordTopic)
 
-###########################
-## THIS FOREST IS RANDOM ##
-###########################
+####################
+## RANDOM FORESTS ##
+####################
 
 smp_sz <- floor(nrow(data_lda)*.4)
 
@@ -686,9 +585,9 @@ summary(model1)
 #exponentiate coefficients for interpretations
 round(exp(coef(model1)), 3)
 
-####################
-## DASHBOARD TIME ##
-####################
+###############
+## DASHBOARD ##
+###############
 
 ## read in topics_one_word and topics_two_word here
 topics_one_word_2 <- read.csv("./topics_one_word.csv", header = T)
@@ -781,13 +680,6 @@ frow6 <- fluidRow(
       ,plotOutput('plot2', height = 500))
 )
 
-frow7 <- fluidRow(
-  box(title = "Phases with Overall Status"
-      ,solidHeader = TRUE 
-      ,collapsible = TRUE
-      ,width = 12
-      ,plotOutput("plot4", height = 500))
-)
 
 # Menu to have 3 tabs
 menus <-  sidebarMenu(
@@ -805,8 +697,7 @@ ui <- dashboardPage(skin = "blue",
                         tabItem(tabName = "dashboard",
                                 h2("Main Dashboard"),
                                 frow1,
-                                frow6,
-                                frow7
+                                frow6
                         ),
                         tabItem(tabName = "enrollmentplots",
                                 h2("Enrollment Levels"),
@@ -848,18 +739,14 @@ server <- function(input, output) {
             axis.title.x = element_text(size = 16), 
             axis.title.y = element_text(size = 16))
   })
-  output$plot4 <- renderPlot({
-    ggplot(data = current_data, aes(x = phase, fill = overall_status)) +
-      geom_bar(position = "fill") + labs(x = 'Phase', y = 'Count', fill = 'Overall Status') +
-      theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 14),
+  output$plot5 <- renderPlot({
+    ggplot(data = current_data, aes(x = enrollment_level, fill = overall_status)) +
+      geom_bar(position = 'fill') + labs(x = 'Enrollment', y = 'Proportion', fill = 'Overall Status') +
+      theme(axis.text.x = element_text(angle = 45, hjust = 1),
             axis.text.y = element_text(size = 14), 
             legend.text = element_text(size = 14), 
             axis.title.x = element_text(size = 16), 
             axis.title.y = element_text(size = 16))
-  })
-  output$plot5 <- renderPlot({
-    ggplot(data = current_data, aes(x = enrollment_level, fill = overall_status)) +
-      geom_bar(position = 'fill') + labs(x = 'Enrollment', y = 'Proportion', fill = 'Overall Status')
   })
   # these last two (plot 6 and plot 7) should work once the data is correct
   output$plot6 <- renderPlot({
