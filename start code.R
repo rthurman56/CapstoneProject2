@@ -168,8 +168,6 @@ topics_one_word <- tidy(lda_one, matrix = "beta")
 #writing topics to csv to increase run time
 # write.csv( topics_one_word, "./topics_two_word.csv")
 
-
-
 #per-document-per-topic probabilities
 documents <- tidy(lda_one, matrix = "gamma")
 documents_w<- documents %>%
