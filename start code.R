@@ -689,7 +689,7 @@ top_terms_two_word <- topics_two_word_2 %>%
 top_terms_two_word
 
 top_terms_two_word$topic <- factor(top_terms_two_word$topic,
-                                   labels = c("HeartHealth", "TumorGrowth", "Hepatitis/StemCell", "Cancer", "PostCare", "BrainStudy", "Diabetes/Types", "DrugDosage", "PhysiologicalEffects", "TrialExecution"))
+                                   labels = c("HeartHealth", "Cancer", "PhysiologicalEffects", "Diabetes/Types", "PostPain", "HIV", "PostCare", "DrugDosage", "WeightLoss", "TrialExecution"))
 
 
 frow1 <- fluidRow(
