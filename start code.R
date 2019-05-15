@@ -165,7 +165,7 @@ lda_one <- LDA(dtm, k = 10, control = list(seed = 1234))
 topics_one_word <- tidy(lda_one, matrix = "beta")
 
 #writing topics to csv to increase run time
-write.csv( topics_one_word, "C:/Users/Rachel Youngquist/Documents/GitHub/CapstoneProject2/topics_two_word.csv")
+write.csv( topics_one_word, "./topics_two_word.csv")
 
 
 
@@ -192,7 +192,7 @@ tokens_tf_idf <- tokens_clean %>%
 head(tokens_tf_idf)
 
 #write files to csv for a speedy process
-write.csv(lda_one_word, "C:/Users/Rachel Youngquist/Documents/GitHub/CapstoneProject2/lda_one_word.csv")
+write.csv(lda_one_word, "./lda_one_word.csv")
 
 ################
 # LDA TWO WORD #
@@ -328,7 +328,7 @@ write.csv(lda_two_word, "C:/Users/Rachel Youngquist/Documents/GitHub/CapstonePro
 #added a "_2" to file name to differentiate from created above
 #in case different computers generate different data
 lda_one_word_2 <- read.csv("./lda_one_word.csv", header = T)
-lda_two_word_2 <- read.csv("C:/Users/Rachel Youngquist/Documents/GitHub/CapstoneProject2/lda_two_word.csv", header = T)
+lda_two_word_2 <- read.csv("./lda_two_word.csv", header = T)
 
 ###########################
 #### BEST TOPIC COLUMN ####
