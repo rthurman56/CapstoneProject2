@@ -723,6 +723,9 @@ ggplot(data = data_lda)+
 ggplot(data = data_lda)+
   geom_bar(aes(x = TwoWordTopic, fill = overall_status), position = "fill")
 
+ggplot(data = data_lda)+
+  geom_bar(aes(x = phasef, fill = enrollment_level), position = "fill")
+
 frow1 <- fluidRow(
   box(title = "Intervention Models and Overall Status"
       ,solidHeader = TRUE 
