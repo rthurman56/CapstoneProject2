@@ -704,7 +704,7 @@ data_lda$OneWordTopic <- relevel(data_lda$OneWordTopic, ref = 5)
 #set TwoWordTopic ref level to Physiological Effects since it has the most rows
 data_lda$TwoWordTopic <- relevel(data_lda$TwoWordTopic, ref = 8)
 
-model1 <- glm(status_bin ~ enrollment_level + intervention_type + phasef + OneWordTopic + TwoWordTopic, 
+model1 <- glm(status_bin ~ enrollment_level + intervention_type + phasef + OneWordTopic + TwoWordTopic + enrollment_level*phasef, 
               data = data_lda, 
               family = binomial(link = logit))
 
