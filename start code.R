@@ -202,7 +202,6 @@ ggplot(data = current_data, aes(x = enrollment_level, fill = overall_status)) + 
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) + ggtitle('Interaction Between Phase and Enrollment')
 # showed to Follett
 
-
 #####################
 ## SOME LDA ACTION ##
 #####################
@@ -453,10 +452,10 @@ lda_two_word <- write.csv(lda_two_word, "C:/Users/Rachel Youngquist/Documents/Gi
 top_terms_two_word <- write.csv(top_terms_two_word, "C:/Users/Rachel Youngquist/Documents/GitHub/CapstoneProject2/top_terms_two_word.csv")
 ### wrote file to csv, will now read it in from local computer
 
-lda_one_word <- read.csv("C:/Users/Rachel Youngquist/Documents/GitHub/CapstoneProject2/lda_one_word.csv", header = T)
-top_terms_one_word <- read.csv("C:/Users/Rachel Youngquist/Documents/GitHub/CapstoneProject2/top_terms_one_word.csv", header = T)
-lda_two_word <- read.csv("C:/Users/Rachel Youngquist/Documents/GitHub/CapstoneProject2/lda_two_word.csv", header = T)
-top_terms_two_word <- read.csv("C:/Users/Rachel Youngquist/Documents/GitHub/CapstoneProject2/top_terms_two_word.csv", header = T)
+lda_one_word <- read.csv("./lda_one_word.csv", header = T)
+top_terms_one_word <- read.csv("./top_terms_one_word.csv", header = T)
+lda_two_word <- read.csv("./lda_two_word.csv", header = T)
+top_terms_two_word <- read.csv("./top_terms_two_word.csv", header = T)
 
 ###########################
 #### BEST TOPIC COLUMN ####
@@ -700,36 +699,29 @@ data_lda <- na.omit(data_lda)
 
 #Make the "Drug" level the reference level since it is the most prominent
 data_lda$intervention_type <- relevel(data_lda$intervention_type, ref = 7)
-data_lda$phasef <- relevel(data_lda$phasef, ref = 4)
+#set OneWordTopic ref level to Cancer.y since it has the most rows
 data_lda$OneWordTopic <- relevel(data_lda$OneWordTopic, ref = 5)
-data_lda$TwoWordTopic <- relevel(data_lda$TwoWordTopic, ref = 9)
+#set TwoWordTopic ref level to Physiological Effects since it has the most rows
+data_lda$TwoWordTopic <- relevel(data_lda$TwoWordTopic, ref = 8)
 
-model1 <- glm(status_bin ~ enrollment_level + intervention_type + OneWordTopic + TwoWordTopic, 
+model1 <- glm(status_bin ~ enrollment_level + intervention_type + phasef + OneWordTopic + TwoWordTopic, 
               data = data_lda, 
               family = binomial(link = logit))
 
-model2 <- glm(status_bin ~ phasef + enrollment_level + has_dmc + allocation + startMonth 
-              + startYear + primary_purpose + intervention_model + intervention_type + HeartHealth
-              + TumorGrowth + Hepatitis.StemCell + Cancer.x + PostCare + BrainStudy + Diabetes.Types
-              + DrugDosage.x + PhysiologicalEffects + TrialExecution.x + BrainScan.Drug + Care + TrialExecution.y 
-              + Cancer.y + BloodDieseasStudy + QulaityofLife + Surgery + DrugDosage.y + Diabetes + BabyVaccine, data = data_lda, family = binomial(link = logit))
-
-model3 <- glm(status_bin ~ enrollment_level + intervention_type + OneWordTopic + TwoWordTopic, 
-              data = data_lda, 
-              family = binomial(link = logit))
 summary(model1)
-summary(model2)
-summary(model3)
 
 #exponentiate coefficients for interpretations
-round(exp(coef(model3)), 3)
-
-#heart health: cardiovascular health (CV) Hypertension (HTN)
-#Hepatitis.StemCell: Hepatitis.  These two don't have anything to do with one another.
+round(exp(coef(model1)), 3)
 
 ####################
 ## DASHBOARD TIME ##
 ####################
+
+ggplot(data = data_lda)+
+  geom_bar(aes(x = OneWordTopic, fill = overall_status), position = "fill")
+
+ggplot(data = data_lda)+
+  geom_bar(aes(x = TwoWordTopic, fill = overall_status), position = "fill")
 
 frow1 <- fluidRow(
   box(title = "Intervention Models and Overall Status"
