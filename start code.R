@@ -674,8 +674,7 @@ round(exp(coef(model1)), 3)
 topics_one_word_2 <- read.csv("./topics_one_word.csv", header = T)
 topics_two_word_2 <- read.csv("./topics_two_word.csv", header = T)
 
-## grab code from above that turns topics into top_terms and names topics
-## will be using bottom half of the code (plotting) in the dashboards
+#turns topics into top_terms and names topics
 #get a small data frame of the top 10 descriptions for each topic
 top_terms_one_word <- topics_one_word_2 %>%
   group_by(topic) %>%
@@ -698,6 +697,10 @@ top_terms_two_word
 top_terms_two_word$topic <- factor(top_terms_two_word$topic,
                                    labels = c("HeartHealth", "Cancer", "PhysiologicalEffects", "Diabetes/Types", "PostPain", "HIV", "PostCare", "DrugDosage", "WeightLoss", "TrialExecution"))
 
+
+# Begin Dashboard
+
+# Fluid Rows
 
 frow1 <- fluidRow(
   box(title = "Intervention Models and Overall Status"
@@ -763,6 +766,7 @@ menus <-  sidebarMenu(
   ,menuItem("LDA", tabName = 'lda', icon = icon('dashboard'))
 )
 
+# UI
 ui <- dashboardPage(skin = "blue",
                     dashboardHeader(title = "Clinical Trials"),
                     dashboardSidebar(menus),
@@ -785,7 +789,7 @@ ui <- dashboardPage(skin = "blue",
                                 frow5
                                 ))))
 
-
+# Server
 server <- function(input, output) {
   output$plot1 <- renderPlot({
     ggplot(data = current_data) + geom_mosaic(aes(x = product(overall_status, intervention_model), fill = overall_status)) + 
@@ -795,8 +799,6 @@ server <- function(input, output) {
             legend.text = element_text(size = 14), 
             axis.title.x = element_text(size = 16), 
             axis.title.y = element_text(size = 16))
-    # axis.text.y
-    # legend.text
   })
   output$plot2 <- renderPlot({
     ggplot(data = current_data) + geom_mosaic(aes(x = product(overall_status, intervention_type_factor), fill = overall_status)) + 
@@ -810,7 +812,11 @@ server <- function(input, output) {
   output$plot3 <- renderPlot({
     ggplot(data = current_data, aes(x = enrollment_level, fill = overall_status)) + geom_bar(position = 'fill') + 
       facet_wrap(~phasef) + labs(x = 'Enrollment', y = 'Proportion', fill = 'Overall Status') + 
-      theme(axis.text.x = element_text(angle = 45, hjust = 1))
+      theme(axis.text.x = element_text(angle = 45, hjust = 1),
+            axis.text.y = element_text(size = 14), 
+            legend.text = element_text(size = 14), 
+            axis.title.x = element_text(size = 16), 
+            axis.title.y = element_text(size = 16))
   })
   output$plot4 <- renderPlot({
     ggplot(data = current_data, aes(x = phase, fill = overall_status)) +
@@ -845,4 +851,5 @@ server <- function(input, output) {
   })
 }
 
+# Run Dashboard
 shinyApp(ui, server)
