@@ -1,3 +1,9 @@
+## Project 2 -- Group 4
+## Claire Peterson, Kaleb Schulz, Tanner Thurman, and Rachel Youngquist
+
+install.packages(c('ggplot2', 'ggmosaic', 'RColorBrewer', 'dplyr', 'tidytext', 'topicmodels', 'reshape2', 
+                 'shinydashboard', 'shiny', 'randomForest', 'caret', 'rpart', 'rpart.plot'))
+
 library(ggplot2) #for plotting
 library(ggmosaic) #for mosaic plots
 library(RColorBrewer) #for custom color palettes
@@ -86,7 +92,12 @@ current_data$phase[current_data$phase=='Early Phase 1']='Phase 1'
 current_data$phase[current_data$phase=='Phase 1/Phase 2']='Phase 1'
 current_data$phase[current_data$phase=='Phase 2/Phase 3']='Phase 2'
 
+# reordering phases
 current_data$phasef <- factor(current_data$phase, levels = c('Phase 1', 'Phase 2', 'Phase 3', 'Phase 4', 'N/A'))
+
+# reordering intervention type
+# later on, we wanted to have our mosaic plot in order of termination rates so we added this (created new column that is only being used for visualizations)
+current_data$intervention_type_factor <- factor(current_data$intervention_type, levels = c('Diagnostic Test', 'Behavioral', 'Dietary Supplement', 'Other', 'Not Listed', 'Genetic', 'Biological', 'Procedure', 'Device', 'Drug', 'Radiation'))
 
 
 ## clean allocation
@@ -98,6 +109,8 @@ current_data$allocation[current_data$allocation == ''] <- 'Not Listed'
 current_data$intervention_model[current_data$intervention_model == ''] <- 'Not Listed' 
 ## rename NA values in intervention_type to 'Not Listed'
 current_data$intervention_type[is.na(current_data$intervention_type)] <- 'Not Listed' 
+## rename NA values in intervention_type_factor to 'Not Listed'
+current_data$intervention_type_factor[is.na(current_data$intervention_type_factor)] <- 'Not Listed' 
 ## rename blank values in primary_purpose to 'Not Listed'
 current_data$primary_purpose[current_data$primary_purpose == ''] <- 'Not Listed' 
 ## rename blank values in has_dmc to 'Not Listed'
@@ -118,7 +131,6 @@ ggplot(data = current_data) +
 
 ggplot(data = current_data) +
   geom_bar(aes(x = allocation, fill = enrollment_level), position = "fill")
-
 
 # Claire playing around with categoricals -- will be deleting most
 
@@ -248,45 +260,29 @@ dtm <- tokens_count %>%
   cast_dtm(nct_id, word, n)
 
 #lda
-lda <- LDA(dtm, k = 10, control = list(seed = 1234))
+lda_one <- LDA(dtm, k = 10, control = list(seed = 1234))
 
 
-topics_one_word <- tidy(lda, matrix = "beta")
+topics_one_word <- tidy(lda_one, matrix = "beta")
 
 #writing topics to csv to increase run time
 write.csv( topics_one_word, "C:/Users/Rachel Youngquist/Documents/GitHub/CapstoneProject2/topics_two_word.csv")
 
-#get a small data frame of the top 10 descriptions for each topic
-top_terms_one_word <- topics %>%
-  group_by(topic) %>%
-  top_n(5, beta) %>%
-  ungroup() %>%
-  arrange(topic, -beta)
-top_terms_one_word
 
-top_terms_one_word %>%
-  mutate(term = reorder(term, beta)) %>%
-  ggplot(aes(term, beta, fill = factor(topic))) +
-  geom_col(show.legend = FALSE) +
-  facet_wrap(~ topic, scales = "free") +
-  coord_flip()
-
-#writing top terms to csv to increase run time
-write.csv(top_terms_one_word, "C:/Users/Rachel Youngquist/Documents/GitHub/CapstoneProject2/top_terms_one_word.csv")
 
 #per-document-per-topic probabilities
-documents <- tidy(lda, matrix = "gamma")
+documents <- tidy(lda_one, matrix = "gamma")
 documents_w<- documents %>%
   select(document, topic, gamma) %>%
   dcast(document ~ topic, value.var = "gamma")
-colnames(documents_w) <- c("nct_id", "Topic1", "Topic2")
-lab_lda <- merge(documents_w, current_data, by="nct_id", all = T)
-str(lab_lda)
+colnames(documents_w) <- c("nct_id", "BrainScan/Drug", "Care", "TrialExecution", "Cancer", "BloodDiseaseStudy", " QualityofLife", "Surgery", "DrugDosage", " Diabetes ", " BabyVaccine ")
+lda_one_word <- merge(documents_w, current_data, by="nct_id", all = T)
+str(lda_one_word)
 
 #model probability of a  status_bin review based on topic1 probability
 #logit(p) = beta_0 + beta_1*topic1
-lab_lda$overall_status <-I(lab_lda$overall_status== 'Terminated')
-m <- glm(status_bin ~ Topic1 , data = lab_lda,
+lda_one_word$overall_status <-I(lda_one_word$overall_status== 'Terminated')
+m <- glm(status_bin ~ Topic1 , data = lda_one_word,
          family = binomial)
 exp(coef(m))
 
@@ -297,12 +293,11 @@ tokens_tf_idf <- tokens_clean %>%
 head(tokens_tf_idf)
 
 #write files to csv for a speedy process
-lda_one_word <- write.csv(lda_one_word, "C:/Users/Rachel Youngquist/Documents/GitHub/CapstoneProject2/lda_one_word.csv")
-top_terms_one_word <- write.csv(top_terms_one_word, "C:/Users/Rachel Youngquist/Documents/GitHub/CapstoneProject2/top_terms_one_word.csv")
+write.csv(lda_one_word, "C:/Users/Rachel Youngquist/Documents/GitHub/CapstoneProject2/lda_one_word.csv")
 
-######################
-#two word text mining#
-######################
+########################
+# TWO WORD TEXT MINING #
+########################
 
 tokens <- current_data %>% unnest_tokens(word, description, token = "ngrams", n= 2)
 #see first few rows - note reach row is now a single description (token)
@@ -410,59 +405,37 @@ dtm <- tokens_count %>%
   cast_dtm(nct_id, word, n)
 
 #lda
-lda <- LDA(dtm, k = 10, control = list(seed = 1234))
+lda_two <- LDA(dtm, k = 10, control = list(seed = 1234))
 
-topics_two_word <- tidy(lda, matrix = "beta")
+topics_two_word <- tidy(lda_two, matrix = "beta")
 
 #writing topics to csv to increase run time
 write.csv( topics_two_word, "C:/Users/Rachel Youngquist/Documents/GitHub/CapstoneProject2/topics_two_word.csv")
 
-#get a small data frame of the top 10 descriptions for each topic
-top_terms_two_word <- topics %>%
-  group_by(topic) %>%
-  top_n(5, beta) %>%
-  ungroup() %>%
-  arrange(topic, -beta)
-top_terms_two_word
-
-top_terms_two_word$topic <- factor(top_terms_two_word$topic,
-                          labels = c("HeartHealth", "TumorGrowth", "Hepatitis/StemCell", "Cancer", "PostCare", "BrainStudy", "Diabetes/Types", "DrugDosage", "PhysiologicalEffects", "TrialExecution"))
-
-top_terms_two_word %>%
-  mutate(term = reorder(term, beta)) %>%
-  ggplot(aes(term, beta, fill = factor(topic))) +
-  geom_col(show.legend = FALSE) +
-  facet_wrap(~ topic, scales = "free") +
-  coord_flip() +   theme(axis.text.x = element_text(angle = 45, hjust = 1))
-
-#writing top terms to csv to increase run time
-write.csv(top_terms_two_word, "C:/Users/Rachel Youngquist/Documents/GitHub/CapstoneProject2/top_terms_two_word.csv")
 
 #per-document-per-topic probabilities
-documents <- tidy(lda, matrix = "gamma")
+documents <- tidy(lda_two, matrix = "gamma")
 documents_w<- documents %>%
   select(document, topic, gamma) %>%
   dcast(document ~ topic, value.var = "gamma")
 colnames(documents_w) <- c("nct_id", "HeartHealth", "TumorGrowth", "Hepatitis/StemCell", "Cancer", "PostCare", "BrainStudy", "Diabetes/Types", "DrugDosage", "PhysiologicalEffects", "TrialExecution")
-lab_lda <- merge(documents_w, current_data, by="nct_id", all = T)
-str(lab_lda)
+lda_two_word <- merge(documents_w, current_data, by="nct_id", all = T)
+str(lda_two_word)
 
 #write files to csv for a speedy process
-lda_two_word <- write.csv(lda_two_word, "C:/Users/Rachel Youngquist/Documents/GitHub/CapstoneProject2/lda_two_word.csv")
-top_terms_two_word <- write.csv(top_terms_two_word, "C:/Users/Rachel Youngquist/Documents/GitHub/CapstoneProject2/top_terms_two_word.csv")
-### wrote file to csv, will now read it in from local computer
+write.csv(lda_two_word, "C:/Users/Rachel Youngquist/Documents/GitHub/CapstoneProject2/lda_two_word.csv")
 
-lda_one_word <- read.csv("./lda_one_word.csv", header = T)
-top_terms_one_word <- read.csv("./top_terms_one_word.csv", header = T)
-lda_two_word <- read.csv("./lda_two_word.csv", header = T)
-top_terms_two_word <- read.csv("./top_terms_two_word.csv", header = T)
+#wrote file to csv, will now read it in from local computer
+#added a "_2" to file name to differentiate from created above
+#in case different computers generate different data
+lda_one_word_2 <- read.csv("C:/Users/Rachel Youngquist/Documents/GitHub/CapstoneProject2/lda_one_word.csv", header = T)
+lda_two_word_2 <- read.csv("C:/Users/Rachel Youngquist/Documents/GitHub/CapstoneProject2/lda_two_word.csv", header = T)
 
 ###########################
 #### BEST TOPIC COLUMN ####
 ###########################
 
 #merge lab_lda with current_data to make one for random forest use
-
 lda_two_word <- lda_two_word[,-c(1, 13:28)]
 lda_one_word <- subset(lda_one_word[-c(1,13:29)])
 
@@ -717,26 +690,54 @@ round(exp(coef(model1)), 3)
 ## DASHBOARD TIME ##
 ####################
 
+## read in topics_one_word and topics_two_word here
+topics_one_word_2 <- read.csv("./topics_one_word.csv", header = T)
+topics_two_word_2 <- read.csv("./topics_two_word.csv", header = T)
+
+#status proportions by best one word topic
 ggplot(data = data_lda)+
   geom_bar(aes(x = OneWordTopic, fill = overall_status), position = "fill")
-
+#status proportions by best two word topic
 ggplot(data = data_lda)+
   geom_bar(aes(x = TwoWordTopic, fill = overall_status), position = "fill")
-
+#proportions of enrollment level by phase
 ggplot(data = data_lda)+
   geom_bar(aes(x = phasef, fill = enrollment_level), position = "fill")
+
+#turns topics into top_terms and names topics
+#get a small data frame of the top 10 descriptions for each topic
+top_terms_one_word <- topics_one_word_2 %>%
+  group_by(topic) %>%
+  top_n(5, beta) %>%
+  ungroup() %>%
+  arrange(topic, -beta)
+top_terms_one_word
+
+top_terms_one_word$topic <- factor(top_terms_one_word$topic,
+                                   labels = c("BrainScan/Drug", "Care", "TrialExecution", "Cancer", "BloodDiseaseStudy", " QualityofLife", "Surgery", "DrugDosage", " Diabetes ", " BabyVaccine "))
+
+#get a small data frame of the top 10 descriptions for each topic
+top_terms_two_word <- topics_two_word_2 %>%
+  group_by(topic) %>%
+  top_n(5, beta) %>%
+  ungroup() %>%
+  arrange(topic, -beta)
+top_terms_two_word
+
+top_terms_two_word$topic <- factor(top_terms_two_word$topic,
+                                   labels = c("HeartHealth", "Cancer", "PhysiologicalEffects", "Diabetes/Types", "PostPain", "HIV", "PostCare", "DrugDosage", "WeightLoss", "TrialExecution"))
+
+
+# Begin Dashboard
+
+# Fluid Rows
 
 frow1 <- fluidRow(
   box(title = "Intervention Models and Overall Status"
       ,solidHeader = TRUE 
       ,collapsible = TRUE
-      ,width = 6
-      ,plotOutput("plot1", height = 250)),
-  box(title = "Intervention Types and Overall Status"
-      ,solidHeader = TRUE 
-      ,collapsible = TRUE
-      ,width = 6
-      ,plotOutput("plot2", height = 250))
+      ,width = 12
+      ,plotOutput("plot1", height = 500))
 )
 
 frow2 <- fluidRow(
@@ -745,117 +746,124 @@ frow2 <- fluidRow(
       ,solidHeader = TRUE 
       ,collapsible = TRUE
       ,width = 12
-      ,plotOutput("plot3", height = 250))
+      ,plotOutput("plot3", height = 500))
 )
 
 frow3 <- fluidRow(
-  box(title = "Distribution of Enrollment by Phase"
-      ,solidHeader = TRUE 
-      ,collapsible = TRUE
-      ,width = 6
-      ,plotOutput("plot4", height = 250)),
   box(title = "Enrollment Levels with Overall Status"
       ,solidHeader = TRUE 
       ,collapsible = TRUE
-      ,width = 6
-      ,plotOutput("plot5", height = 250)) 
+      ,width = 12
+      ,plotOutput("plot5", height = 500)) 
 )
 
-
 frow4 <- fluidRow(
-  box(title = 'LDA - 1 topic'
+  box(title = 'LDA - 1 word'
       ,solidHeader = TRUE
       ,collapsible = TRUE
       ,width = 12
-      ,plotOutput('plot6', height = 250))
+      ,plotOutput('plot6', height = 600))
 )
 
 frow5 <- fluidRow(
-  box(title = 'LDA - 2 topics'
+  box(title = 'LDA - 2 words'
       ,solidHeader = TRUE
       ,collapsible = TRUE
       ,width = 12
-      ,plotOutput('plot7', height = 250))
+      ,plotOutput('plot7', height = 600))
 )
 
+frow6 <- fluidRow(
+  box(title = 'Intervention Types and Overall Status'
+      ,solidHeader = TRUE
+      ,collapsible = TRUE
+      ,width = 12
+      ,plotOutput('plot2', height = 500))
+)
+
+frow7 <- fluidRow(
+  box(title = "Phases with Overall Status"
+      ,solidHeader = TRUE 
+      ,collapsible = TRUE
+      ,width = 12
+      ,plotOutput("plot4", height = 500))
+)
+
+# Menu to have 3 tabs
 menus <-  sidebarMenu(
   menuItem("Main Dashboard", tabName = "dashboard", icon = icon("dashboard")), #see tabItem below
   menuItem("Enrollment Level Plots", tabName = "enrollmentplots", icon = icon("dashboard")) #see tabItem below
   ,menuItem("LDA", tabName = 'lda', icon = icon('dashboard'))
 )
 
-checkboxes <- checkboxGroupInput("checkGroup",
-                                 h3("Enrollment Level:"),
-                                 choices = list("0-21" ,
-                                                "22-43" ,
-                                                "44-80" ,
-                                                "81-199" ,
-                                                "200-999" ,
-                                                "1000+"),
-                                 selected = c("(-1,21]" ,
-                                              "(21,43]" ,
-                                              "(43,80]" ,
-                                              "(80,199]" ,
-                                              "(199-999]" ,
-                                              "(999,6.71e+07]" ))
-
+# UI
 ui <- dashboardPage(skin = "blue",
                     dashboardHeader(title = "Clinical Trials"),
-                    dashboardSidebar(
-                      checkboxes,
-                      menus),
+                    dashboardSidebar(menus),
                     dashboardBody(
                       tabItems(
                         tabItem(tabName = "dashboard",
-                                h2("dashboard tab content"),
-                                frow1
+                                h2("Main Dashboard"),
+                                frow1,
+                                frow6,
+                                frow7
                         ),
                         tabItem(tabName = "enrollmentplots",
                                 h2("Enrollment Levels"),
                                 frow3,
                                 frow2
-                                #frow4
                         ),
                         tabItem(tabName = 'lda',
                                 h2("LDA Topics"),
                                 frow4,
                                 frow5
+                                ))))
 
-                                )
-                        )))
-
-
+# Server
 server <- function(input, output) {
-  # current_data2 <- reactive({
-  # subset(current_data, enrollment_level %in% input$checkGroup)
-  # }) 
-  # if we get this working, then we should use current_data2() as the data for each plot in the server
   output$plot1 <- renderPlot({
     ggplot(data = current_data) + geom_mosaic(aes(x = product(overall_status, intervention_model), fill = overall_status)) + 
       labs(x = 'Intervention Model', y = 'Overall Status', fill = 'Overall Status') +
-      theme(axis.text.x = element_text(angle = 45, hjust = 1))
+      theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 14), 
+            axis.text.y = element_text(size = 14), 
+            legend.text = element_text(size = 14), 
+            axis.title.x = element_text(size = 16), 
+            axis.title.y = element_text(size = 16))
   })
   output$plot2 <- renderPlot({
-    ggplot(data = current_data) + geom_mosaic(aes(x = product(overall_status, intervention_type), fill = overall_status)) + 
+    ggplot(data = current_data) + geom_mosaic(aes(x = product(overall_status, intervention_type_factor), fill = overall_status)) + 
       labs(x = 'Intervention Type', y = 'Overall Status', fill = 'Overall Status') +
-      theme(axis.text.x = element_text(angle = 45, hjust = 1))
+      theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 14),
+            axis.text.y = element_text(size = 14), 
+            legend.text = element_text(size = 14), 
+            axis.title.x = element_text(size = 16), 
+            axis.title.y = element_text(size = 16))
   })
   output$plot3 <- renderPlot({
     ggplot(data = current_data, aes(x = enrollment_level, fill = overall_status)) + geom_bar(position = 'fill') + 
       facet_wrap(~phasef) + labs(x = 'Enrollment', y = 'Proportion', fill = 'Overall Status') + 
-      theme(axis.text.x = element_text(angle = 45, hjust = 1))
+      theme(axis.text.x = element_text(angle = 45, hjust = 1),
+            axis.text.y = element_text(size = 14), 
+            legend.text = element_text(size = 14), 
+            axis.title.x = element_text(size = 16), 
+            axis.title.y = element_text(size = 16))
   })
   output$plot4 <- renderPlot({
-    ggplot(data = current_data, aes(x = phase, fill = phase)) +
-      geom_bar() + facet_wrap(~overall_status, scales ='free') + 
-      labs(x = 'Phase', y = 'Count', fill = 'Phase')
+    ggplot(data = current_data, aes(x = phase, fill = overall_status)) +
+      geom_bar(position = "fill") + labs(x = 'Phase', y = 'Count', fill = 'Overall Status') +
+      theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 14),
+            axis.text.y = element_text(size = 14), 
+            legend.text = element_text(size = 14), 
+            axis.title.x = element_text(size = 16), 
+            axis.title.y = element_text(size = 16))
   })
   output$plot5 <- renderPlot({
     ggplot(data = current_data, aes(x = enrollment_level, fill = overall_status)) +
       geom_bar(position = 'fill') + labs(x = 'Enrollment', y = 'Proportion', fill = 'Overall Status')
   })
+  # these last two (plot 6 and plot 7) should work once the data is correct
   output$plot6 <- renderPlot({
-    top_terms_oneword_2 %>%
+    top_terms_one_word %>%
       mutate(term = reorder(term, beta)) %>%
       ggplot(aes(term, beta, fill = factor(topic))) +
       geom_col(show.legend = FALSE) +
@@ -863,7 +871,7 @@ server <- function(input, output) {
       coord_flip() +   theme(axis.text.x = element_text(angle = 45, hjust = 1))
   })
   output$plot7 <- renderPlot({
-    top_terms_twoword_2 %>%
+    top_terms_two_word %>%
       mutate(term = reorder(term, beta)) %>%
       ggplot(aes(term, beta, fill = factor(topic))) +
       geom_col(show.legend = FALSE) +
@@ -871,7 +879,7 @@ server <- function(input, output) {
       coord_flip() +   theme(axis.text.x = element_text(angle = 45, hjust = 1))
     
   })
-  
 }
 
+# Run Dashboard
 shinyApp(ui, server)
