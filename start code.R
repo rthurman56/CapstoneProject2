@@ -790,14 +790,22 @@ server <- function(input, output) {
   output$plot1 <- renderPlot({
     ggplot(data = current_data) + geom_mosaic(aes(x = product(overall_status, intervention_model), fill = overall_status)) + 
       labs(x = 'Intervention Model', y = 'Overall Status', fill = 'Overall Status') +
-      theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 18))
+      theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 14), 
+            axis.text.y = element_text(size = 14), 
+            legend.text = element_text(size = 14), 
+            axis.title.x = element_text(size = 16), 
+            axis.title.y = element_text(size = 16))
     # axis.text.y
     # legend.text
   })
   output$plot2 <- renderPlot({
     ggplot(data = current_data) + geom_mosaic(aes(x = product(overall_status, intervention_type_factor), fill = overall_status)) + 
       labs(x = 'Intervention Type', y = 'Overall Status', fill = 'Overall Status') +
-      theme(axis.text.x = element_text(angle = 45, hjust = 1))
+      theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 14),
+            axis.text.y = element_text(size = 14), 
+            legend.text = element_text(size = 14), 
+            axis.title.x = element_text(size = 16), 
+            axis.title.y = element_text(size = 16))
   })
   output$plot3 <- renderPlot({
     ggplot(data = current_data, aes(x = enrollment_level, fill = overall_status)) + geom_bar(position = 'fill') + 
@@ -806,7 +814,12 @@ server <- function(input, output) {
   })
   output$plot4 <- renderPlot({
     ggplot(data = current_data, aes(x = phase, fill = overall_status)) +
-      geom_bar(position = "fill") + labs(x = 'Phase', y = 'Count', fill = 'Overall Status') 
+      geom_bar(position = "fill") + labs(x = 'Phase', y = 'Count', fill = 'Overall Status') +
+      theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 14),
+            axis.text.y = element_text(size = 14), 
+            legend.text = element_text(size = 14), 
+            axis.title.x = element_text(size = 16), 
+            axis.title.y = element_text(size = 16))
   })
   output$plot5 <- renderPlot({
     ggplot(data = current_data, aes(x = enrollment_level, fill = overall_status)) +
